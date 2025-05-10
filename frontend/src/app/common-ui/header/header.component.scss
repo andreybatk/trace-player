@@ -1,0 +1,125 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.img-logo {
+  width: 80px;
+  height: auto;
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.05) rotate(-2deg);
+  }
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+
+  a {
+    color: var(--light-color);
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding: 0.25rem 0;
+  }
+}
+
+.right-side {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.favorite svg {
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.user-info {
+  position: relative;
+
+  button {
+    background: none;
+    border: none;
+    color: var(--light-color);
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: var(--dark-color);
+    border: 1px solid var(--light-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 0;
+    list-style: none;
+    min-width: 150px;
+    z-index: 1000;
+
+    li {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s ease;
+
+      &:hover {
+        color:var(--primary-light-color)
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .nav {
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .right-side {
+    justify-content: flex-end;
+  }
+
+  .top-row {
+    flex-direction: row;
+    align-items: center;
+  }
+}

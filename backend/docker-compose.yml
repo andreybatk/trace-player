@@ -1,0 +1,36 @@
+version: '3.4'
+networks:
+  traceplayer-network:
+    driver: bridge
+services:
+    postgres:
+        container_name: traceplayer-postgres
+        image: postgres
+        restart: always
+        environment:
+          POSTGRES_DB: traceplayer
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        #ports:
+        #  - 5432:5432
+        volumes:
+          - traceplayer-postgres-data:/var/lib/postgresql/data
+        networks:
+          - traceplayer-network
+    traceplayer.api:
+        depends_on:
+          - postgres
+        container_name: traceplayer.api
+        image: traceplayer.api
+        # volumes:
+        #   - ./app/GeoLite2/GeoLite2-Country.mmdb:/app/GeoLite2-Country.mmdb
+        build:
+          context: .
+          dockerfile: TracePlayer.API/Dockerfile
+        ports:
+          - "5000:8080"
+          - "5001:8081"
+        networks:
+          - traceplayer-network
+volumes:
+  traceplayer-postgres-data:

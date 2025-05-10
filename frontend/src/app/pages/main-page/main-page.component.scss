@@ -1,0 +1,27 @@
+.main-page {
+  h1 {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; 
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+  h3 {
+    text-align: center;
+  }
+
+  .img-logo {
+    width: 80px;
+    height: auto;
+    margin-left: 10px; 
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .img-logo:hover {
+    transform: scale(1.05) rotate(-2deg);
+  }
+}
