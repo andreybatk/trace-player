@@ -25,7 +25,8 @@ namespace TracePlayer.BL.Services.Fungun
 
             try
             {
-                var url = $"https://fungun.net/ecd/ajax/ecd_front.php?method=list&draw=2&columns[0][data]=nick&columns[1][data]=user_ip&columns[2][data]=hostname&columns[3][data]=result_status&columns[4][data]=before&columns[5][data]=time&columns[6][data]=more&order[0][column]=5&order[0][dir]=desc&start=0&length=50&search[value]={steamId}&search[regex]=false";
+                //TODO: переписать под api key
+                var url = $"https://fungun.net/ecd/search[value]={steamId}&search[regex]=false";
 
                 var response = await _httpClient.GetStringAsync(url);
 
@@ -45,10 +46,10 @@ namespace TracePlayer.BL.Services.Fungun
                     _cache.Set(steamId, result.Data, TimeSpan.FromMinutes(30));
                     return result.Data.Select(d => new FungunPlayerResult
                     {
-                        Nick = CleanHtml(d.Nick),
-                        UserIp = CleanHtml(d.User_Ip),
-                        Hostname = CleanHtml(d.Hostname),
-                        ResultStatus = CleanHtml(d.Result_Status),
+                        Nick = d.Nick,
+                        UserIp = d.User_Ip,
+                        Hostname = d.Hostname,
+                        ResultStatus = d.Result_Status,
                         Before = d.Before,
                         Time = d.Time,
                         MoreLink = d.More
@@ -62,11 +63,6 @@ namespace TracePlayer.BL.Services.Fungun
                 _logger.LogError(ex, "Error fetching data from Fungun API for Steam ID: {SteamId}", steamId);
                 return null;
             }
-        }
-
-        private string CleanHtml(string input)
-        {
-            return System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", string.Empty);
         }
     }
 }

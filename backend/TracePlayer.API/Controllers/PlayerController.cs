@@ -53,7 +53,7 @@ namespace TracePlayer.API.Controllers
 
         [Authorize]
         [HttpGet("me")]
-        [ProducesResponseType(typeof(long?), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMyPlayer()
@@ -70,8 +70,14 @@ namespace TracePlayer.API.Controllers
             {
                 return NotFound("Player not linked to this user.");
             }
+            var id = await _playerRepository.GetId(steamId);
 
-            return Ok(await _playerRepository.GetId(steamId));
+            if(id is null)
+            {
+                return NotFound("Player profile not found to this user.");
+            }
+
+            return Ok(id);
         }
 
         [HttpGet("{id}")]
@@ -92,7 +98,13 @@ namespace TracePlayer.API.Controllers
             {
                 steamPlayerInfo = await _steamApiService.GetPlayerInfoAsync(player.SteamId64);
             }
-            
+
+            //var fungunResults = new List<FungunPlayerResult>();
+            //if (!string.IsNullOrEmpty(player.SteamId))
+            //{
+            //    fungunResults = await _fungunApiService.GetFungunEntriesBySteamIdAsync(player.SteamId);
+            //}
+
             var response = new GetPlayerResponse
             {
                 SteamId = player.SteamId,

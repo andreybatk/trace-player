@@ -17,6 +17,7 @@ namespace TracePlayer.DB
         public DbSet<Player> Players { get; set; }
         public DbSet<PlayerName> PlayerNames { get; set; }
         public DbSet<PlayerIp> PlayerIps { get; set; }
+        public DbSet<ApiKey> ApiKeys { get; set; }
        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,6 +55,10 @@ namespace TracePlayer.DB
                       .HasForeignKey(ip => ip.PlayerId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<ApiKey>()
+                .HasIndex(k => k.ServerIp)
+                .IsUnique();
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Text;
 using TracePlayer.API.DiContainer;
 using TracePlayer.BL.DiContainer;
 using TracePlayer.BL.Helpers;
+using TracePlayer.BL.Services.Fungun;
 using TracePlayer.BL.Services.Steam;
 using TracePlayer.DB;
 using TracePlayer.DB.DiContainer;
@@ -16,7 +17,7 @@ namespace TracePlayer.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,7 @@ namespace TracePlayer.API
 
             builder.Services.AddMemoryCache();
             builder.Services.AddHttpClient<SteamApiService>();
+            builder.Services.AddHttpClient<FungunApiService>();
 
             builder.Services.AddSwaggerGen(options =>
             {
@@ -120,6 +122,9 @@ namespace TracePlayer.API
 
                 //var dbContext = services.GetRequiredService<ApplicationDbContext>();
                 //dbContext.Database.Migrate();
+
+                await SeedData.SeedRolesAsync(services);
+                await SeedData.SeedAdminUserAsync(services, authenticationConfiguration.AdminEmail, authenticationConfiguration.AdminPassword);
             }
 
             if (app.Environment.IsDevelopment())

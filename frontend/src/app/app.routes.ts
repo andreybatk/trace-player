@@ -5,11 +5,14 @@ import { MainPageComponent } from './pages/main-page/main-page.component';
 import { AddToServerPageComponent } from './pages/add-to-server-page/add-to-server-page.component';
 import { SteamCallbackComponent } from './common-ui/steam-callback/steam-callback.component';
 import { PlayerPageComponent } from './pages/player-page/player-page.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
 
 export const routes: Routes = [
   {path: '', component: MainPageComponent},
   {path: 'add-to-server', component: AddToServerPageComponent},
   {path: 'player/:id', component: PlayerPageComponent},
   {path: 'steam-callback', component: SteamCallbackComponent, canActivate: [canActivateGuest]},
-  {path: 'access-denied', component: AccessDeniedPageComponent }
+  {path: 'access-denied', component: AccessDeniedPageComponent },
+  {path: 'not-found', component: NotFoundComponent },
+  {path: '**', redirectTo: 'not-found' }
 ];

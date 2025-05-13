@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using TracePlayer.DB.Repositories.Players;
 using TracePlayer.DB.Repositories.Users;
+using TracePlayer.DB.Repositories.Api;
 
 namespace TracePlayer.DB.DiContainer
 {
@@ -12,6 +13,7 @@ namespace TracePlayer.DB.DiContainer
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
         }
     }
 }

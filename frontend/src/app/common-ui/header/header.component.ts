@@ -19,15 +19,16 @@ export class HeaderComponent {
   isDropdownOpen = false;
 
   goToProfile() {
-  this.playerService.getMyPlayer().subscribe(playerId => {
-    if (playerId !== null && playerId !== undefined) {
-      this.router.navigate(['/player', playerId]);
-    } else {
-      this.router.navigate(['/', playerId]);
-    }
-  });
-}
-
+    this.playerService.getMyPlayer().subscribe({
+      next: (playerId) => {
+        if (playerId !== null && playerId !== undefined) {
+          this.router.navigate(['/player', playerId]);
+        }
+      },
+      error: (err) => {
+      }
+    });
+  }
 
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;

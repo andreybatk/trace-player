@@ -1,0 +1,36 @@
+.not-found-wrapper {
+  color: var(--light-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+
+  .status-code {
+    font-size: 6rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+
+  .message {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--light-color-a);
+  }
+
+  .home-link {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--dark-color);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: var(--primary-light-color);
+    }
+  }
+}

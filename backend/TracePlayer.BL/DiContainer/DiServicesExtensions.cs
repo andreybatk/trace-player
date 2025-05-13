@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TracePlayer.BL.Services.Steam;
 using TracePlayer.BL.Services.Geo;
 using TracePlayer.BL.Services.Fungun;
+using TracePlayer.BL.Services.Api;
 
 namespace TracePlayer.BL.DiContainer
 {
@@ -12,12 +13,15 @@ namespace TracePlayer.BL.DiContainer
         {
             services.AddScoped<AuthenticatorService>();
             services.AddScoped<AccessTokenGeneratorService>();
+            services.AddScoped<ApiKeyService>();
 
             services.AddSingleton<RefreshTokenGeneratorService>();
             services.AddSingleton<TokenGeneratorService>();
             services.AddSingleton<GeoService>();
             services.AddSingleton<SteamApiService>();
             services.AddSingleton<FungunApiService>();
+
+            services.AddSingleton<ApiKeyHasher>();
         }
     }
 }
