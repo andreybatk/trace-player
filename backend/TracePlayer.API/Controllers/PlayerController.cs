@@ -35,7 +35,6 @@ namespace TracePlayer.API.Controllers
         //[ApiKeyAuth]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddNames([FromBody] AddPlayersNamesRequest request)
         {
             var players = request.Players.Select(p => new AddPlayerDto
@@ -47,7 +46,7 @@ namespace TracePlayer.API.Controllers
                 CountryCode = _geoService.GetCountryCode(p.Ip)
             }).ToList();
 
-            await _playerRepository.AddNames(players, request.Server, request.ServerIp);
+            await _playerRepository.AddNames(players, request.Server);
             return Ok();
         }
 
@@ -59,7 +58,6 @@ namespace TracePlayer.API.Controllers
         public async Task<IActionResult> GetMyPlayer()
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
             if (!Guid.TryParse(userIdString, out Guid userId))
             {
                 return Unauthorized();
@@ -68,13 +66,13 @@ namespace TracePlayer.API.Controllers
             var steamId = await _userRepository.GetSteamId(userId);
             if (steamId is null)
             {
-                return NotFound("Player not linked to this user.");
+                return NotFound("Player is not associated with this user.");
             }
-            var id = await _playerRepository.GetId(steamId);
 
+            var id = await _playerRepository.GetId(steamId);
             if(id is null)
             {
-                return NotFound("Player profile not found to this user.");
+                return NotFound("Player profile not found for this user.");
             }
 
             return Ok(id);
@@ -82,7 +80,6 @@ namespace TracePlayer.API.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetPlayerResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPlayer([FromRoute] long id)
         {
@@ -93,10 +90,10 @@ namespace TracePlayer.API.Controllers
                 return NotFound($"Player with id {id} not found.");
             }
 
-            SteamPlayerInfo? steamPlayerInfo = null;
+            FullSteamPlayerInfo? fullSteamPlayerInfo = null;
             if (!string.IsNullOrEmpty(player.SteamId64))
             {
-                steamPlayerInfo = await _steamApiService.GetPlayerInfoAsync(player.SteamId64);
+                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
             }
 
             //var fungunResults = new List<FungunPlayerResult>();
@@ -108,7 +105,7 @@ namespace TracePlayer.API.Controllers
             var response = new GetPlayerResponse
             {
                 SteamId = player.SteamId,
-                SteamPlayerInfo = steamPlayerInfo,
+                FullSteamPlayerInfo = fullSteamPlayerInfo,
                 Ips = player.Ips.Select(ip => new PlayerIpResponse
                 {
                     CountryCode = ip.CountryCode,
@@ -118,8 +115,7 @@ namespace TracePlayer.API.Controllers
                 {
                     Name = name.Name,
                     AddedAt = name.AddedAt,
-                    Server = name.Server,
-                    ServerIp = name.ServerIp
+                    Server = name.Server
                 }).ToList()
             };
 

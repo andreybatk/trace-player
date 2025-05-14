@@ -124,7 +124,7 @@ namespace TracePlayer.API
                 //dbContext.Database.Migrate();
 
                 await SeedData.SeedRolesAsync(services);
-                await SeedData.SeedAdminUserAsync(services, authenticationConfiguration.AdminEmail, authenticationConfiguration.AdminPassword);
+                await SeedData.SeedAdminUserAsync(services, authenticationConfiguration.AdminSteamId64);
             }
 
             if (app.Environment.IsDevelopment())

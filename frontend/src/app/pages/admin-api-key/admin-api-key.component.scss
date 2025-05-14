@@ -1,0 +1,35 @@
+.admin-container * {
+  box-sizing: border-box;
+  margin: 2% 0;
+}
+
+.admin-container {
+  max-width: 600px;
+  margin: 2% auto;
+  background: var(--dark-color);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-color);
+  color: var(--light-color);
+}
+
+.form-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.message {
+  margin-bottom: 12px;
+  color: var(--accent-color);
+}
+
+.ip-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ip-item button {
+  margin-left: 16px;
+}

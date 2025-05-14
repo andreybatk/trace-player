@@ -93,10 +93,8 @@ public plugin_end()
   grip_json_object_set_value(hRoot, "players", hPlayers);
 
   new szServerName[64]; get_cvar_string("hostname", szServerName, charsmax(szServerName));
-  new szServerIP[32]; get_cvar_string("net_address", szServerIP, charsmax(szServerIP));
 
   grip_json_object_set_string(hRoot, "server", szServerName);
-  grip_json_object_set_string(hRoot, "serverIp", szServerIP);
 
   new GripBody:hBody = grip_body_from_json(hRoot);
 

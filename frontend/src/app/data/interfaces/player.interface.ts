@@ -18,20 +18,29 @@ export interface PlayerIp {
 export interface PlayerName {
   name: string;
   server: string,
-  serverIp: string,
   addedAt: Date;
 }
 
 export interface SteamPlayerInfo {
-  steamid: string;
   personaname: string;
   avatarfull: string;
   profileurl: string;
+}
+
+export interface SteamPlayerBanInfo {
+  communityBanned: boolean;
+  numberOfVACBans: number;
+  numberOfGameBans: number;
+}
+
+export interface FullSteamPlayerInfo {
+  playerInfo: SteamPlayerInfo | null;
+  banInfo: SteamPlayerBanInfo | null;
 }
 
 export interface PlayerResponse {
   steamId: string;
   ips: PlayerIp[];
   names: PlayerName[];
-  steamPlayerInfo: SteamPlayerInfo | null;
+  fullSteamPlayerInfo: FullSteamPlayerInfo | null;
 }

@@ -6,7 +6,7 @@ namespace TracePlayer.API.Controllers
 {
     [Route("api/api-key")]
     [ApiController]
-    [Authorize("Admin")]
+    [Authorize(Roles = "Admin")]
     public class ApiKeyController : ControllerBase
     {
         private readonly ApiKeyService _apiKeyService;

@@ -9,7 +9,7 @@ export const canActivateAuth = () => {
       return true
   }
 
-  return inject(Router).navigate(['/login'])
+  return inject(Router).navigate(['/access-denied'])
 }
 
 export const canActivateGuest = () => {
@@ -28,7 +28,7 @@ export const canActivateRole = (requiredRoles: string[]) => {
     const router = inject(Router);
 
     if (!authService.isAuth) {
-      return router.navigate(['/login']);
+      return router.navigate(['/access-denied']);
     }
 
     const userRoles = authService.userRoles;

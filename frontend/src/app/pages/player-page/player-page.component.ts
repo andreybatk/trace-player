@@ -22,13 +22,13 @@ export class PlayerPageComponent implements OnInit {
   }
 
   getPlayerDetails(id: number): void {
-    this.playerService.getPlayer(id).subscribe(
-      (data: PlayerResponse) => {
+    this.playerService.getPlayer(id).subscribe({
+      next: (data: PlayerResponse) => {
         this.playerResponse = data;
       },
-      (error) => {
+      error: (error) => {
         console.error('Ошибка при загрузке данных игрока', error);
       }
-    );
+    });
   }
 }

@@ -15,6 +15,7 @@
         </button>
     
         <ul class="dropdown" *ngIf="isDropdownOpen">
+          <li *ngIf="authService.isAdmin" routerLink="/admin-panel">Админ панель</li>
           <li *ngIf="authService.isAuth" (click)="goToProfile()">
             Профиль
           </li>

@@ -3,33 +3,28 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs';
 import { throwError } from 'rxjs';
+import { ErrorService } from './services/error.service';
 
 export const errorHandlerInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
-
+  const errorService = inject(ErrorService);
+  
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error instanceof HttpErrorResponse) {
-        console.error('HTTP Error:', error);
+        let message = 'Произошла ошибка';
 
-        if (error.status === 404) {
-          const errorMessage = error.error || 'Страница не найдена';
-          router.navigate(['/not-found'], {
-            state: { message: errorMessage }
-          });
-        }
-
+        if (error.status === 400) {
+          message = error.error;
+        } 
+        else if (error.status === 404) {
+        message = error.error || 'Страница не найдена';
+        }    
         else if (error.status === 500) {
-          router.navigate(['/not-found'], {
-            state: { message: 'Внутренняя ошибка сервера' }
-          });
+          message = 'Внутренняя ошибка сервера';
         }
 
-        else {
-          router.navigate(['/not-found'], {
-            state: { message: 'Произошла ошибка, попробуйте позже.' }
-          });
-        }
+        errorService.show(message);
       }
 
       return throwError(() => error);

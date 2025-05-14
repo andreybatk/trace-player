@@ -8,6 +8,6 @@ namespace TracePlayer.Contracts.Player
         public string SteamId { get; set; } = string.Empty;
         public List<PlayerIpResponse> Ips { get; set; } = [];
         public List<PlayerNameResponse> Names { get; set; } = [];
-        public SteamPlayerInfo? SteamPlayerInfo { get; set; }
+        public FullSteamPlayerInfo? FullSteamPlayerInfo { get; set; }
     }
 }

@@ -77,7 +77,7 @@ namespace TracePlayer.API.Controllers
                     UserName = $"steam_{steamId64}",
                     SteamId64 = steamId64,
                     SteamId = steamId,
-                    Email = $"{steamId}@steam.local"
+                    Email = $"{steamId64}@steam.local"
                 };
 
                 var identityResult = await _userManager.CreateAsync(user);

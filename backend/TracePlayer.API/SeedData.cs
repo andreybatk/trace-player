@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using TracePlayer.BL.Helpers;
 using TracePlayer.DB.Models;
 
-namespace TracePlayer.DB
+namespace TracePlayer.API
 {
     public static class SeedData
     {
@@ -22,21 +23,23 @@ namespace TracePlayer.DB
             }
         }
 
-        public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider, string adminEmail, string adminPassword)
+        public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider, string adminSteamId64)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
-            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            var adminUser = await userManager.Users.FirstOrDefaultAsync(u => u.SteamId64 == adminSteamId64);
+            var adminSteamId = SteamIdConverter.ConvertSteamId64ToSteamId(adminSteamId64);
 
-            if (adminUser == null)
+            if (adminUser is null)
             {
                 var user = new User
                 {
-                    UserName = adminEmail,
-                    Email = adminEmail,
-                    EmailConfirmed = true
+                    UserName = $"steam_{adminSteamId64}",
+                    SteamId64 = adminSteamId64,
+                    SteamId = adminSteamId,
+                    Email = $"{adminSteamId64}@steam.local"
                 };
 
-                var result = await userManager.CreateAsync(user, adminPassword);
+                var result = await userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
                     await userManager.AddToRolesAsync(user, roleNames);

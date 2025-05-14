@@ -13,7 +13,7 @@ namespace TracePlayer.DB.Repositories.Players
             _context = context;
         }
 
-        public async Task AddNames(List<AddPlayerDto> players, string server, string serverIp)
+        public async Task AddNames(List<AddPlayerDto> players, string server)
         {
             var playersToAdd = new List<Player>();
 
@@ -38,7 +38,7 @@ namespace TracePlayer.DB.Repositories.Players
                     {
                         SteamId = dto.SteamId,
                         SteamId64 = dto.SteamId64,
-                        Names = new List<PlayerName> { new PlayerName { Name = dto.Name, Server = server, ServerIp = serverIp } },
+                        Names = new List<PlayerName> { new PlayerName { Name = dto.Name, Server = server } },
                         Ips = new List<PlayerIp> { new PlayerIp { Ip = dto.Ip, CountryCode = dto.CountryCode } }
                     });
                 }
@@ -46,7 +46,7 @@ namespace TracePlayer.DB.Repositories.Players
                 {
                     if (!player.Names.Any(n => n.Name == dto.Name))
                     {
-                        player.Names.Add(new PlayerName { Name = dto.Name, Server = server, ServerIp = serverIp });
+                        player.Names.Add(new PlayerName { Name = dto.Name, Server = server });
                     }
 
                     if (!player.Ips.Any(i => i.Ip == dto.Ip))

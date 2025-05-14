@@ -22,28 +22,43 @@ namespace TracePlayer.BL.Services.Steam
             _apiKey = configuration["Authentication:Steam:ApiKey"] ?? throw new InvalidOperationException("Steam API key is missing in configuration.");
         }
 
-        public async Task<SteamPlayerInfo?> GetPlayerInfoAsync(string steamId64)
+        public async Task<FullSteamPlayerInfo?> GetFullSteamPlayerInfoAsync(string steamId64)
         {
-            if (_cache.TryGetValue(steamId64, out SteamPlayerInfo? cachedPlayer))
-                return cachedPlayer;
+            if (_cache.TryGetValue(steamId64, out FullSteamPlayerInfo? cached))
+                return cached;
 
             try
             {
-                var url = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={_apiKey}&steamids={steamId64}";
-                var response = await _httpClient.GetFromJsonAsync<SteamApiResponse>(url);
+                var profileUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={_apiKey}&steamids={steamId64}";
+                var profileResponse = await _httpClient.GetFromJsonAsync<SteamApiResponse>(profileUrl);
+                var player = profileResponse?.Response?.Players?.FirstOrDefault();
 
-                var player = response?.Response?.Players?.FirstOrDefault();
 
-                if (player != null)
+                var bansUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={_apiKey}&steamids={steamId64}";
+                var banResponse = await _httpClient.GetFromJsonAsync<SteamBanResponse>(bansUrl);
+                var banInfo = banResponse?.Players?.FirstOrDefault();
+
+                var fullInfo = new FullSteamPlayerInfo
                 {
-                    _cache.Set(steamId64, player, TimeSpan.FromMinutes(30));
+                    PlayerInfo = player,
+                    BanInfo = banInfo
+                };
+
+                if(player is not null && banInfo is not null)
+                {
+                    _cache.Set(steamId64, fullInfo, TimeSpan.FromMinutes(30));
                 }
 
-                return player;
+                return fullInfo;
             }
             catch (HttpRequestException ex) when ((ex.StatusCode ?? 0) == HttpStatusCode.TooManyRequests)
             {
                 _logger.LogError(ex, "Steam API rate limit exceeded.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении информации о Steam-профиле: {SteamId}", steamId64);
                 return null;
             }
         }
