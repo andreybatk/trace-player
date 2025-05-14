@@ -29,11 +29,11 @@ export class PlayerService {
     return this.http.get<PaginatedPlayersResponse>(this.baseApiUrl, { params });
   }
 
-  getPlayer(id: number): Observable<PlayerResponse> {
-    return this.http.get<PlayerResponse>(`${this.baseApiUrl}/${id}`);
+  getIdByAuth(): Observable<number | null> {
+    return this.http.get<number | null>(`${this.baseApiUrl}/me`);
   }
 
-  getMyPlayer(): Observable<number | null> {
-    return this.http.get<number | null>(`${this.baseApiUrl}/me`);
+  getPlayer(id: number): Observable<PlayerResponse> {
+    return this.http.get<PlayerResponse>(`${this.baseApiUrl}/${id}`);
   }
 }

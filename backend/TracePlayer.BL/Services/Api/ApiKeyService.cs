@@ -36,12 +36,27 @@ namespace TracePlayer.BL.Services.Api
         public async Task<bool> IsValidApiKey(string apiKey)
         {
             var apiKeyHash = _apiKeyHasher.ComputeHash(apiKey);
-            return await _apiKeyRepository.IsValidKeyHash(apiKeyHash);
+
+            var result = await _apiKeyRepository.IsValidKeyHash(apiKeyHash);
+            
+            if(!result)
+            {
+                _logger.LogInformation("Request with ApiKey has not been validated.");
+            }
+
+            return result;
         }
 
         public async Task<bool> IsValidServerIp(string serverIp)
         {
-            return await _apiKeyRepository.IsValidServerIp(serverIp);
+            var result = await _apiKeyRepository.IsValidServerIp(serverIp);
+
+            if (!result)
+            {
+                _logger.LogInformation("Request with Server Ip: {serverIp} has not been validated.", serverIp);
+            }
+
+            return result;
         }
 
         public async Task<List<string>> GetAllServerIps()
@@ -51,7 +66,9 @@ namespace TracePlayer.BL.Services.Api
 
         public async Task<bool> DeleteApiKeyByServerIp(string serverIp)
         {
-            return await _apiKeyRepository.DeleteApiKeyByServerIp(serverIp);
+            var result = await _apiKeyRepository.DeleteApiKeyByServerIp(serverIp);
+            _logger.LogInformation("Removed ApiKey for Server Ip: {serverIp}", serverIp);
+            return result;
         }
     }
 }

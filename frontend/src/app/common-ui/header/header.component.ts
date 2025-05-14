@@ -2,7 +2,6 @@ import { Component, HostListener, ElementRef, inject, OnInit } from '@angular/co
 import { AuthService } from '../../auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
-import { environment } from '../../../environments/environment';
 import { PlayerService } from '../../data/services/player.service';
 
 @Component({
@@ -19,7 +18,7 @@ export class HeaderComponent {
   isDropdownOpen = false;
 
   goToProfile() {
-    this.playerService.getMyPlayer().subscribe({
+    this.playerService.getIdByAuth().subscribe({
       next: (playerId) => {
         if (playerId !== null && playerId !== undefined) {
           this.router.navigate(['/player', playerId]);

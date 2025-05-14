@@ -1,15 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using TracePlayer.BL.Helpers;
-using TracePlayer.BL.Services.Fungun;
-using TracePlayer.BL.Services.Geo;
-using TracePlayer.BL.Services.Steam;
-using TracePlayer.Contracts.Fungun;
+using TracePlayer.BL.Services.Player;
 using TracePlayer.Contracts.Player;
-using TracePlayer.Contracts.Steam;
-using TracePlayer.DB.Repositories.Players;
-using TracePlayer.DB.Repositories.Users;
 
 namespace TracePlayer.API.Controllers
 {
@@ -17,19 +10,11 @@ namespace TracePlayer.API.Controllers
     [ApiController]
     public class PlayerController : ControllerBase
     {
-        private readonly IPlayerRepository _playerRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly SteamApiService _steamApiService;
-        private readonly FungunApiService _fungunApiService;
-        private readonly GeoService _geoService;
+        private readonly PlayerService _playerService;
 
-        public PlayerController(IPlayerRepository playerRepository, IUserRepository userRepository, SteamApiService steamApiService, FungunApiService fungunApiService, GeoService geoService)
+        public PlayerController(PlayerService playerService)
         {
-            _playerRepository = playerRepository;
-            _userRepository = userRepository;
-            _steamApiService = steamApiService;
-            _fungunApiService = fungunApiService;
-            _geoService = geoService;
+            _playerService = playerService;
         }
 
         //[ApiKeyAuth]
@@ -37,16 +22,7 @@ namespace TracePlayer.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AddNames([FromBody] AddPlayersNamesRequest request)
         {
-            var players = request.Players.Select(p => new AddPlayerDto
-            {
-                SteamId = p.SteamId,
-                SteamId64 = SteamIdConverter.ConvertSteamIdToSteamId64(p.SteamId),
-                Ip = p.Ip,
-                Name = p.Name,
-                CountryCode = _geoService.GetCountryCode(p.Ip)
-            }).ToList();
-
-            await _playerRepository.AddNames(players, request.Server);
+            await _playerService.AddNames(request);
             return Ok();
         }
 
@@ -55,7 +31,7 @@ namespace TracePlayer.API.Controllers
         [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetMyPlayer()
+        public async Task<IActionResult> GetIdByUserId()
         {
             var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(userIdString, out Guid userId))
@@ -63,19 +39,14 @@ namespace TracePlayer.API.Controllers
                 return Unauthorized();
             }
 
-            var steamId = await _userRepository.GetSteamId(userId);
-            if (steamId is null)
+            var result = await _playerService.GetIdByUserId(userId);
+
+            if (!result.Success)
             {
-                return NotFound("Player is not associated with this user.");
+                return NotFound(result.ErrorMessage);
             }
 
-            var id = await _playerRepository.GetId(steamId);
-            if(id is null)
-            {
-                return NotFound("Player profile not found for this user.");
-            }
-
-            return Ok(id);
+            return Ok(result.Data);
         }
 
         [HttpGet("{id}")]
@@ -83,62 +54,36 @@ namespace TracePlayer.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPlayer([FromRoute] long id)
         {
-            var player = await _playerRepository.Get(id);
+            var result = await _playerService.GetPlayerResponse(id);
 
-            if (player is null)
+            if (!result.Success)
             {
-                return NotFound($"Player with id {id} not found.");
+                return NotFound(result.ErrorMessage);
             }
 
-            FullSteamPlayerInfo? fullSteamPlayerInfo = null;
-            if (!string.IsNullOrEmpty(player.SteamId64))
-            {
-                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
-            }
-
-            //var fungunResults = new List<FungunPlayerResult>();
-            //if (!string.IsNullOrEmpty(player.SteamId))
-            //{
-            //    fungunResults = await _fungunApiService.GetFungunEntriesBySteamIdAsync(player.SteamId);
-            //}
-
-            var response = new GetPlayerResponse
-            {
-                SteamId = player.SteamId,
-                FullSteamPlayerInfo = fullSteamPlayerInfo,
-                Ips = player.Ips.Select(ip => new PlayerIpResponse
-                {
-                    CountryCode = ip.CountryCode,
-                    AddedAt = ip.AddedAt
-                }).ToList(),
-                Names = player.Names.Select(name => new PlayerNameResponse
-                {
-                    Name = name.Name,
-                    AddedAt = name.AddedAt,
-                    Server = name.Server
-                }).ToList()
-            };
-
-            return Ok(response);
+            return Ok(result.Data);
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(PlayersWithTotalCountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPaginated([FromQuery] GetPlayersPaginationRequest request)
         {
-            var (Items, TotalCount) = await _playerRepository.GetPaginated(
-                request.SteamId,
-                request.Page,
-                request.PageSize
-            );
+            var result = await _playerService.GetPaginated(request);
 
-            var response = new PlayersWithTotalCountResponse
+            return Ok(result.Data);
+        }
+
+        [HttpGet("motd-html")]
+        public async Task<IActionResult> GetMotdHtml([FromQuery] string steamId)
+        {
+            var result = await _playerService.GetMotdHtml(steamId);
+
+            if (!result.Success)
             {
-                Players = Items,
-                TotalCount = TotalCount
-            };
+                return NotFound(result.ErrorMessage);
+            }
 
-            return Ok(response);
+            return Content(result.Data!, "text/html");
         }
     }
 }

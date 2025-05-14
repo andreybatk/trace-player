@@ -4,6 +4,7 @@ using TracePlayer.BL.Services.Steam;
 using TracePlayer.BL.Services.Geo;
 using TracePlayer.BL.Services.Fungun;
 using TracePlayer.BL.Services.Api;
+using TracePlayer.BL.Services.Player;
 
 namespace TracePlayer.BL.DiContainer
 {
@@ -14,6 +15,7 @@ namespace TracePlayer.BL.DiContainer
             services.AddScoped<AuthenticatorService>();
             services.AddScoped<AccessTokenGeneratorService>();
             services.AddScoped<ApiKeyService>();
+            services.AddScoped<PlayerService>();
 
             services.AddSingleton<RefreshTokenGeneratorService>();
             services.AddSingleton<TokenGeneratorService>();
