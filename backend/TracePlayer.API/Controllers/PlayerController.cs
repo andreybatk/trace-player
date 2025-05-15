@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TracePlayer.API.Attributes;
 using TracePlayer.BL.Services.Player;
 using TracePlayer.Contracts.Player;
 
@@ -64,6 +65,21 @@ namespace TracePlayer.API.Controllers
             return Ok(result.Data);
         }
 
+        [HttpGet("bySteamId")]
+        [ProducesResponseType(typeof(GetCSPlayerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPlayer([FromQuery] string steamId)
+        {
+            var result = await _playerService.GetCSPlayerResponse(steamId);
+
+            if (!result.Success)
+            {
+                return NotFound(result.ErrorMessage);
+            }
+
+            return Ok(result.Data);
+        }
+
         [HttpGet]
         [ProducesResponseType(typeof(PlayersWithTotalCountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPaginated([FromQuery] GetPlayersPaginationRequest request)
@@ -73,17 +89,5 @@ namespace TracePlayer.API.Controllers
             return Ok(result.Data);
         }
 
-        [HttpGet("motd-html")]
-        public async Task<IActionResult> GetMotdHtml([FromQuery] string steamId)
-        {
-            var result = await _playerService.GetMotdHtml(steamId);
-
-            if (!result.Success)
-            {
-                return NotFound(result.ErrorMessage);
-            }
-
-            return Content(result.Data!, "text/html");
-        }
     }
 }

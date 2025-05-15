@@ -57,13 +57,51 @@ namespace TracePlayer.BL.Services.Player
             return ServiceResult<long>.Ok(id.Value);
         }
 
+        public async Task<ServiceResult<GetCSPlayerResponse?>> GetCSPlayerResponse(string steamId)
+        {
+            var id = await _playerRepository.GetId(steamId);
+            if (id is null)
+            {
+                return ServiceResult<GetCSPlayerResponse?>.Fail("Player profile not found for this user.");
+            }
+
+            var player = await _playerRepository.Get(id.Value);
+
+            if (player is null)
+            {
+                return ServiceResult<GetCSPlayerResponse?>.Fail($"Player with id {id} not found.");
+            }
+
+            FullSteamPlayerInfo? fullSteamPlayerInfo = null;
+            if (!string.IsNullOrEmpty(player.SteamId64))
+            {
+                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
+            }
+
+            var namesRows = string.Join("\n", player.Names.Select(n =>
+                $"<tr><td>{n.Name}</td><td>{n.Server}</td><td>{n.AddedAt:dd.MM.yyyy}</td></tr>"));
+
+            var ipsRows = string.Join("\n", player.Ips.Select(ip =>
+                $"<tr><td>{ip.CountryCode}</td><td>{ip.AddedAt:dd.MM.yyyy}</td></tr>"));
+
+            var response = new GetCSPlayerResponse
+            {
+                SteamId = player.SteamId,
+                FullSteamPlayerInfo = fullSteamPlayerInfo,
+                NamesRows = namesRows,
+                IpsRows = ipsRows
+            };
+
+            return ServiceResult<GetCSPlayerResponse?>.Ok(response);
+        }
+
         public async Task<ServiceResult<GetPlayerResponse?>> GetPlayerResponse(long id)
         {
             var player = await _playerRepository.Get(id);
 
             if (player is null)
             {
-                return ServiceResult<GetPlayerResponse?>.Fail("Player with id {id} not found.");
+                return ServiceResult<GetPlayerResponse?>.Fail($"Player with id {id} not found.");
             }
 
             FullSteamPlayerInfo? fullSteamPlayerInfo = null;
@@ -107,59 +145,6 @@ namespace TracePlayer.BL.Services.Player
             };
 
             return ServiceResult<PlayersWithTotalCountResponse>.Ok(response);
-        }
-
-        public async Task<ServiceResult<string>> GetMotdHtml(string steamId)
-        {
-            //var template = await System.IO.File.ReadAllTextAsync("wwwroot/templates/player-motd-template.html");
-            var template = await System.IO.File.ReadAllTextAsync("templates/player-motd-template.html");
-
-            if(template is null)
-            {
-                return ServiceResult<string>.Fail("Template fot MotdHtml not found.");
-            }
-            var id = await _playerRepository.GetId(steamId);
-
-            if (id is null)
-            {
-                var templateNotFound = await System.IO.File.ReadAllTextAsync("templates/player-not-found-motd-template.html");
-                return ServiceResult<string>.Ok(templateNotFound);
-            }
-
-            var result = await GetPlayerResponse(id.Value);
-
-            if (!result.Success)
-            {
-                return ServiceResult<string>.Fail(result.ErrorMessage);
-            }
-
-            if (result.Data is null)
-            {
-                var templateNotFound = await System.IO.File.ReadAllTextAsync("templates/player-not-found-motd-template.html");
-                return ServiceResult<string>.Ok(templateNotFound);
-            }
-
-            var namesRows = string.Join("\n", result.Data.Names.Select(n =>
-                $"<tr><td>{n.Name}</td><td>{n.Server}</td><td>{n.AddedAt:dd.MM.yyyy}</td></tr>"));
-
-            var ipsRows = string.Join("\n", result.Data.Ips.Select(ip =>
-                $"<tr><td>{ip.CountryCode}</td><td>{ip.AddedAt:dd.MM.yyyy}</td></tr>"));
-
-            var playerInfo = result.Data.FullSteamPlayerInfo?.PlayerInfo;
-            var banInfo = result.Data.FullSteamPlayerInfo?.BanInfo;
-
-            var html = template
-                .Replace("{{personaname}}", playerInfo?.Personaname ?? "Неизвестно")
-                .Replace("{{avatarfull}}", playerInfo?.Avatarfull ?? "")
-                .Replace("{{profileurl}}", playerInfo?.Profileurl ?? "#")
-                .Replace("{{steamid}}", result.Data.SteamId)
-                .Replace("{{vacBans}}", banInfo?.NumberOfVACBans.ToString() ?? "0")
-                .Replace("{{gameBans}}", banInfo?.NumberOfGameBans.ToString() ?? "0")
-                .Replace("{{communityBan}}", banInfo?.CommunityBanned == true ? "Community ban" : "")
-                .Replace("{{namesRows}}", namesRows)
-                .Replace("{{ipsRows}}", ipsRows);
-
-            return ServiceResult<string>.Ok(html);
         }
     }
 }
