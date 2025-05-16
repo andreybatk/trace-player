@@ -76,6 +76,11 @@ namespace TracePlayer.BL.Services.Player
             if (!string.IsNullOrEmpty(player.SteamId64))
             {
                 fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
+                if(fullSteamPlayerInfo?.PlayerInfo is not null)
+                {
+                    fullSteamPlayerInfo.PlayerInfo.Profileurl = fullSteamPlayerInfo.PlayerInfo.Profileurl.Replace("https", "http");
+                    fullSteamPlayerInfo.PlayerInfo.Avatarfull = fullSteamPlayerInfo.PlayerInfo.Avatarfull.Replace("https", "http");
+                }
             }
 
             var namesRows = string.Join("\n", player.Names.Select(n =>
