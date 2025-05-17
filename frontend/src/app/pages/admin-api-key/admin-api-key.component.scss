@@ -24,12 +24,20 @@
   color: var(--accent-color);
 }
 
+.ip-list {
+  margin:0;
+  padding: 0;
+}
+
 .ip-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--light-color);
 }
 
-.ip-item button {
-  margin-left: 16px;
+.btn-custom {
+  max-width: 100px;
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TracePlayer.BL.Helpers;
+using TracePlayer.BL.Services.Api;
 using TracePlayer.DB.Models;
 
 namespace TracePlayer.API
@@ -8,6 +9,20 @@ namespace TracePlayer.API
     public static class SeedData
     {
         public static string[] roleNames = { "Admin" };
+
+        public static async Task SeedApiKey(IServiceProvider serviceProvider)
+        {
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var apiKey = configuration["Api:ApiKey"] ?? throw new InvalidOperationException("ApiKey for SeedData is missing in configuration.");
+            var apiKeyService = serviceProvider.GetRequiredService<ApiKeyService>();
+
+            var isValid = await apiKeyService.IsValidApiKey(apiKey);
+
+            if (!isValid)
+            {
+                await apiKeyService.SaveApiKey("FRONTEND", apiKey);
+            }
+        }
 
         public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
         {

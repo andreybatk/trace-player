@@ -19,7 +19,7 @@ namespace TracePlayer.BL.Services.Steam
             _httpClient = httpClient;
             _cache = cache;
             _logger = logger;
-            _apiKey = configuration["Authentication:Steam:ApiKey"] ?? throw new InvalidOperationException("Steam API key is missing in configuration.");
+            _apiKey = configuration["Steam:ApiKey"] ?? throw new InvalidOperationException("Steam API key is missing in configuration.");
         }
 
         public async Task<FullSteamPlayerInfo?> GetFullSteamPlayerInfoAsync(string steamId64)

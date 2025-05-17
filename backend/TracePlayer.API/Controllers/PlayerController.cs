@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using TracePlayer.API.Attributes;
 using TracePlayer.BL.Services.Player;
 using TracePlayer.Contracts.Player;
 
@@ -12,18 +11,20 @@ namespace TracePlayer.API.Controllers
     public class PlayerController : ControllerBase
     {
         private readonly PlayerService _playerService;
+        private readonly ILogger<PlayerController> _logger;
 
-        public PlayerController(PlayerService playerService)
+        public PlayerController(PlayerService playerService, ILogger<PlayerController> logger)
         {
             _playerService = playerService;
+            _logger = logger;
         }
 
-        //[ApiKeyAuth]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> AddNames([FromBody] AddPlayersNamesRequest request)
         {
             await _playerService.AddNames(request);
+            _logger.LogInformation("Successful request to add players from: {server}", request.Server);
             return Ok();
         }
 

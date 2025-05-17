@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using TracePlayer.API.DiContainer;
+using TracePlayer.API.Middlewares;
 using TracePlayer.BL.DiContainer;
 using TracePlayer.BL.Helpers;
 using TracePlayer.BL.Services.Fungun;
@@ -37,6 +38,29 @@ namespace TracePlayer.API
 
             builder.Services.AddSwaggerGen(options =>
             {
+                options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+                {
+                    Description = "API Key needed to access the endpoints. Example: {your ApiKey}",
+                    In = ParameterLocation.Header,
+                    Name = "X-API-Key",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "ApiKeyScheme"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "ApiKey"
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
+
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -46,7 +70,6 @@ namespace TracePlayer.API
                     In = ParameterLocation.Header,
                     Description = "JWT token. Example: {your token}"
                 });
-
                 options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
 
@@ -125,6 +148,7 @@ namespace TracePlayer.API
 
                 await SeedData.SeedRolesAsync(services);
                 await SeedData.SeedAdminUserAsync(services, authenticationConfiguration.AdminSteamId64);
+                await SeedData.SeedApiKey(services);
             }
 
             if (app.Environment.IsDevelopment())
@@ -143,6 +167,9 @@ namespace TracePlayer.API
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<ApiKeyMiddleware>();
+
             app.MapControllers();
 
             app.Run();

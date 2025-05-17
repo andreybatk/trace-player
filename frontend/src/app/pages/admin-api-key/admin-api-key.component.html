@@ -9,10 +9,10 @@
   <div *ngIf="message" class="message">{{ message }}</div>
 
   <h3>Список серверов</h3>
-  <ul>
+  <ul class="ip-list">
     <li class="ip-item" *ngFor="let ip of serverIps">
       {{ ip }}
-      <button class="btn btn-danger" (click)="deleteApiKey(ip)">Удалить</button>
+      <button class="btn btn-danger btn-custom" (click)="deleteApiKey(ip)">Удалить</button>
     </li>
   </ul>
 </div>

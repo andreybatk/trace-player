@@ -18,6 +18,13 @@ namespace TracePlayer.BL.Services.Api
             _logger = logger;
         }
 
+        public async Task<bool> SaveApiKey(string serverIp, string apiKey)
+        {
+            var keyHash = _apiKeyHasher.ComputeHash(apiKey);
+
+            return await _apiKeyRepository.AddKeyHash(serverIp, keyHash);
+        }
+
         public async Task<string?> GenerateAndSaveApiKey(string serverIp)
         {
             var rawKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));

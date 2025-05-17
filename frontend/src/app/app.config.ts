@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authTokenInterceptor } from './auth/auth.interceptor';
 import { errorHandlerInterceptor } from './data/error-handler.interceptor';
+import { apiKeyInterceptor } from './data/apiKey.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,6 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([
+        apiKeyInterceptor,
         authTokenInterceptor,
         errorHandlerInterceptor
       ])
