@@ -9,7 +9,7 @@
 #include <easy_http>
 
 #define PLUGIN "Trace Player API"
-#define VERSION "1.4"
+#define VERSION "1.4.1"
 #define AUTHOR "yarmak"
 
 new vault_existing;
@@ -190,7 +190,7 @@ public UploadPlayers()
   if(ezhttp_option_set_body_from_json(options, jsonData))
   {
     if (get_pcvar_num(CvarIsDebug) == 1)
-      log_amx("[TracePlayer DEBUG] TThe JSON object is set in the request body");
+      log_amx("[TracePlayer DEBUG] The JSON object is set in the request body");
   }
 
   ezhttp_option_set_header(options, "Content-Type", "application/json");

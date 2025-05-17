@@ -8,7 +8,7 @@
 #include <easy_http>
 
 #define PLUGIN "Trace Player Core"
-#define VERSION "1.2"
+#define VERSION "1.3"
 #define AUTHOR "yarmak"
 
 new const ApiServer[] = "http://localhost:5000";
@@ -20,6 +20,8 @@ new FinalMotd[MAX_PLAYERS + 1][4096];
 public plugin_init()
 {
   register_plugin(PLUGIN, VERSION, AUTHOR);
+
+  register_clcmd("say", "SayHandle");
   register_clcmd("say /names", "MenuNames")
 
   InitMotd();
@@ -37,6 +39,46 @@ public InitMotd()
   }
 
   read_file(filePath, 0, MotdTemplate, charsmax(MotdTemplate), _);
+}
+
+public SayHandle(id)
+{
+  new szArgs[64];
+  read_args(szArgs, charsmax(szArgs));
+  remove_quotes(szArgs);
+  trim(szArgs);
+
+  if (!szArgs[0] || szArgs[0] != '/')
+    return PLUGIN_CONTINUE;
+
+  new szCommand[32], szTargetName[32];
+  parse(szArgs, szCommand, charsmax(szCommand), szTargetName, charsmax(szTargetName));
+
+  if (equali(szCommand, "/name"))
+  {
+    trim(szTargetName);
+
+    if (!szTargetName[0])
+    {
+      return PLUGIN_HANDLED;
+    }
+
+    new targetId = find_player("bl", szTargetName);
+
+    if (!targetId)
+    {
+      return PLUGIN_HANDLED;
+    }
+
+    new steamId[32];
+    get_user_authid(targetId, steamId, charsmax(steamId));
+
+    RequestPlayerInfo(id, steamId);
+
+    return PLUGIN_HANDLED;
+  }
+
+  return PLUGIN_CONTINUE;
 }
 
 public MenuNames(id)
