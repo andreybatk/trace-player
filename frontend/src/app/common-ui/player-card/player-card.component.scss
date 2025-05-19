@@ -77,6 +77,10 @@
   height: 24px;
 }
 
+.danger-bg {
+  background: var(--red-color);
+}
+
 @media (max-width: 768px) {
   .player-info {
     grid-template-columns: 1fr;

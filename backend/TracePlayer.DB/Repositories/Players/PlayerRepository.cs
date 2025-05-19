@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TracePlayer.Contracts.Player;
+using TracePlayer.DB.Helpers;
 using TracePlayer.DB.Models;
 
 namespace TracePlayer.DB.Repositories.Players
@@ -88,6 +89,12 @@ namespace TracePlayer.DB.Repositories.Players
                 .Where(p =>
                     (string.IsNullOrWhiteSpace(steamId) || p.SteamId == steamId));
 
+
+            query = query.OrderByDescending(p => p.Names
+                .OrderByDescending(n => n.AddedAt)
+                .Select(n => n.AddedAt)
+                .FirstOrDefault());
+
             int totalCount = await query.CountAsync();
 
             var items = await query
@@ -103,6 +110,20 @@ namespace TracePlayer.DB.Repositories.Players
                 .ToListAsync();
 
             return (items, totalCount);
+        }
+
+        public async Task UpdateSteamId64()
+        {
+            var playersToUpdate = await _context.Players
+                .Where(p => p.SteamId64 == null && p.SteamId != null)
+                .ToListAsync();
+
+            foreach (var player in playersToUpdate)
+            {
+                player.SteamId64 = SteamIdConverter.ConvertSteamIdToSteamId64(player.SteamId);
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

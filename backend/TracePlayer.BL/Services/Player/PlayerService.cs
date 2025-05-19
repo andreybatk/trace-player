@@ -1,4 +1,5 @@
-﻿using TracePlayer.BL.Helpers;
+﻿using System.Net;
+using TracePlayer.BL.Helpers;
 using TracePlayer.BL.Services.Fungun;
 using TracePlayer.BL.Services.Geo;
 using TracePlayer.BL.Services.Steam;
@@ -83,18 +84,17 @@ namespace TracePlayer.BL.Services.Player
                 }
             }
 
-            var namesRows = string.Join("\n", player.Names.Select(n =>
-                $"<tr><td>{n.Name}</td><td>{n.Server}</td><td>{n.AddedAt:dd.MM.yyyy}</td></tr>"));
+            var namesRows = string.Join("; ", player.Names
+                .OrderByDescending(n => n.AddedAt)
+                .Select(n => n.Name));
 
-            var ipsRows = string.Join("\n", player.Ips.Select(ip =>
-                $"<tr><td>{ip.CountryCode}</td><td>{ip.AddedAt:dd.MM.yyyy}</td></tr>"));
+            var safeNamesRows = WebUtility.HtmlEncode(namesRows);
 
             var response = new GetCSPlayerResponse
             {
                 SteamId = player.SteamId,
                 FullSteamPlayerInfo = fullSteamPlayerInfo,
-                NamesRows = namesRows,
-                IpsRows = ipsRows
+                NamesRows = safeNamesRows.Substring(0, Math.Min(safeNamesRows.Length, 1500))
             };
 
             return ServiceResult<GetCSPlayerResponse?>.Ok(response);
@@ -150,6 +150,11 @@ namespace TracePlayer.BL.Services.Player
             };
 
             return ServiceResult<PlayersWithTotalCountResponse>.Ok(response);
+        }
+
+        public async Task UpdateSteamId64()
+        {
+            await _playerRepository.UpdateSteamId64();
         }
     }
 }

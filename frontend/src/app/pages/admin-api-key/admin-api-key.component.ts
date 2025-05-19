@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ApiKeyService } from '../../data/services/api-key.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PlayerService } from '../../data/services/player.service';
 
 @Component({
   selector: 'app-admin-api-key',
@@ -14,7 +15,7 @@ export class AdminApiKeyComponent {
   serverIps: string[] = [];
   message: string = '';
 
-  constructor(private apiKeyService: ApiKeyService) {}
+  constructor(private apiKeyService: ApiKeyService, private playerService: PlayerService) {}
 
   ngOnInit(): void {
     this.loadServerIps();
@@ -46,11 +47,26 @@ export class AdminApiKeyComponent {
 
     this.apiKeyService.deleteApiKey(ip).subscribe({
       next: () => {
-        this.loadServerIps(); // Обновляем список IP
+        this.loadServerIps();
         this.message = `Ключ удалён для ${ip}`;
       },
       error: () => {
         this.message = 'Ошибка при удалении ключа';
+      }
+    });
+  }
+
+  updateSteamId64(): void {
+    const confirmed = confirm(`Вы уверены, что хотите обновить у игроков SteamId64?`);
+    if (!confirmed) return;
+
+    this.playerService.updateSteamId64().subscribe({
+      next: () => {
+        this.loadServerIps();
+        this.message = `Данные SteamId64 игроков обновлены`;
+      },
+      error: () => {
+        this.message = 'Ошибка при обновлении SteamId64 у игроков';
       }
     });
   }

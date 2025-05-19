@@ -36,4 +36,8 @@ export class PlayerService {
   getPlayer(id: number): Observable<PlayerResponse> {
     return this.http.get<PlayerResponse>(`${this.baseApiUrl}/${id}`);
   }
+
+  updateSteamId64() {
+    return this.http.get<number | null>(`${this.baseApiUrl}/update-steamId64`);
+  }
 }

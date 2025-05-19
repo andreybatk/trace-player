@@ -168,8 +168,14 @@ public OnMotdDataReceived(EzHttpRequest:request_id)
     return;
   }
 
-  new response[2048]
+  new response[2200]
   ezhttp_get_data(request_id, response, charsmax(response))
+
+  if (strlen(response) >= charsmax(response) - 1)
+  {
+    log_amx("[TracePlayer] API response too long for buffer");
+    return;
+  }
 
   new EzJSON:json = ezjson_parse(response)
   if (json == EzInvalid_JSON)
@@ -179,12 +185,10 @@ public OnMotdDataReceived(EzHttpRequest:request_id)
   }
 
   new name[64], avatar[128], steamId[32], vacBans[4], gameBans[4], communityBan[6];
-  new namesRows[512], ipsRows[512];
+  new namesRows[1501];
 
   ezjson_object_get_string(json, "steamId", steamId, charsmax(steamId));
   ezjson_object_get_string(json, "namesRows", namesRows, charsmax(namesRows));
-  ezjson_object_get_string(json, "ipsRows", ipsRows, charsmax(ipsRows));
-
 
   new EzJSON:fullInfo = ezjson_object_get_value(json, "fullSteamPlayerInfo");
   if (fullInfo == EzInvalid_JSON)
@@ -232,7 +236,6 @@ public OnMotdDataReceived(EzHttpRequest:request_id)
   replace_all(FinalMotd[requesterId], charsmax(FinalMotd[]), "{{gameBans}}", gameBans);
   replace_all(FinalMotd[requesterId], charsmax(FinalMotd[]), "{{communityBan}}", communityBan);
   replace_all(FinalMotd[requesterId], charsmax(FinalMotd[]), "{{namesRows}}", namesRows);
-  replace_all(FinalMotd[requesterId], charsmax(FinalMotd[]), "{{ipsRows}}", ipsRows);
 
   show_motd(requesterId, FinalMotd[requesterId], "Trace Player");
 }

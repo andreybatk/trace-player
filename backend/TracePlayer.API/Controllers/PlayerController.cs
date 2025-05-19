@@ -90,5 +90,14 @@ namespace TracePlayer.API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet("update-steamId64")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateSteamId64()
+        {
+            await _playerService.UpdateSteamId64();
+
+            return Ok();
+        }
     }
 }
