@@ -8,7 +8,6 @@ namespace TracePlayer.DB
     public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         // dotnet ef migrations add InitialCreate -p TracePlayer.DB\TracePlayer.DB.csproj -s TracePlayer.API\TracePlayer.API.csproj
-
         // docker cp .\tran_hnsblock_for_pg.sql traceplayer-postgres:/tran_hnsblock_for_pg.sql
         // docker exec -it traceplayer-postgres psql -U postgres -d traceplayer -f /tran_hnsblock_for_pg.sql
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)

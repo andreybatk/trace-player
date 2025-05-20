@@ -67,15 +67,19 @@ namespace TracePlayer.API.Controllers
         }
 
         [HttpGet("bySteamId")]
-        [ProducesResponseType(typeof(GetCSPlayerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetPlayerResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPlayer([FromQuery] string steamId)
         {
-            var result = await _playerService.GetCSPlayerResponse(steamId);
-
+            var result = await _playerService.GetPlayerResponse(steamId);
             if (!result.Success)
             {
                 return NotFound(result.ErrorMessage);
+            }
+
+            if(result.Data?.FullSteamPlayerInfo?.PlayerInfo?.Avatarfull is not null)
+            {
+                result.Data.FullSteamPlayerInfo.PlayerInfo.Avatarfull = result.Data.FullSteamPlayerInfo.PlayerInfo.Avatarfull.Replace("https", "http");
             }
 
             return Ok(result.Data);

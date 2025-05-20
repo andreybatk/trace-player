@@ -1,0 +1,107 @@
+body {
+  display: grid;
+  margin: 0 5%;
+  background-color: #1a1a1a;
+  color: #f5f5f5;
+  font-family: sans-serif;
+}
+
+.player-detail-container * {
+  box-sizing: border-box;
+}
+
+.player-detail-header {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.player-info {
+  display: grid;
+  /* grid-template-columns: 1fr 1fr 1fr; lol*/
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-between;
+  background-color: #0d0d0d;
+  border-radius: 8px;
+  border: 1px solid #d4af37;
+  padding: 20px;
+  margin: 5% 0;
+  gap: 32px;
+}
+
+.player-history-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.player-names-section,
+.player-ips-section {
+  background: #0d0d0d;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #f5f5f5;
+  margin-bottom: 40px;
+}
+
+.player-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.player-table th,
+.player-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f5f5f5;
+  color: #f5f5f5;
+}
+
+.player-table th {
+  color: #d4af37;
+}
+
+.player-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-top: 12px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.player-avatar:hover {
+  transform: scale(1.05);
+}
+
+.fungun-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.danger-bg {
+  background: #96233f;
+}
+
+@media (max-width: 768px) {
+  .player-info {
+    grid-template-columns: 1fr;
+  }
+
+  .player-history-container {
+    grid-template-columns: 1fr;
+  }
+
+  .player-info-left,
+  .player-info-right {
+    min-width: 100%;
+  }
+
+  .player-detail-header {
+    font-size: 24px;
+  }
+
+  .player-avatar {
+    width: 80px;
+    height: 80px;
+  }
+}

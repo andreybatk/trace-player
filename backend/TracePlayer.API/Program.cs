@@ -157,7 +157,6 @@ namespace TracePlayer.API
                 app.UseSwaggerUI();
             }
 
-            app.UseStaticFiles();
             //app.UseHttpsRedirection();
 
             app.UseCors(builder => builder

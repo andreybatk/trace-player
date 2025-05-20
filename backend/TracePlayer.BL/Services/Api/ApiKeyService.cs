@@ -48,7 +48,7 @@ namespace TracePlayer.BL.Services.Api
             
             if(!result)
             {
-                _logger.LogInformation("Request with ApiKey has not been validated.");
+                _logger.LogInformation("Request with ApiKey has not been validated: {apiKey}", apiKey);
             }
 
             return result;

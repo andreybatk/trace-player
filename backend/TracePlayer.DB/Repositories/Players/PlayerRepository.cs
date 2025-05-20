@@ -68,9 +68,19 @@ namespace TracePlayer.DB.Repositories.Players
         public async Task<Player?> Get(long playerId)
         {
             return await _context.Players
-                .Include(p => p.Names)
-                .Include(p => p.Ips)
-                .FirstOrDefaultAsync(p => p.Id == playerId);
+            .Where(p => p.Id == playerId)
+            .Select(p => new Player
+            {
+                Id = p.Id,
+                SteamId = p.SteamId,
+                SteamId64 = p.SteamId64,
+                Names = p.Names
+                    .OrderBy(n => n.AddedAt)
+                    .ToList(),
+
+                Ips = p.Ips.ToList()
+            })
+            .FirstOrDefaultAsync();
         }
 
         public async Task<long?> GetId(string steamId)

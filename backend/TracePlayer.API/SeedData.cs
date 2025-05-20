@@ -15,12 +15,18 @@ namespace TracePlayer.API
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             var apiKey = configuration["Api:ApiKey"] ?? throw new InvalidOperationException("ApiKey for SeedData is missing in configuration.");
             var apiKeyService = serviceProvider.GetRequiredService<ApiKeyService>();
+            var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("SeedData");
 
             var isValid = await apiKeyService.IsValidApiKey(apiKey);
 
             if (!isValid)
             {
-                await apiKeyService.SaveApiKey("FRONTEND", apiKey);
+                var result = await apiKeyService.SaveApiKey("FRONTEND", apiKey);
+
+                if(!result)
+                {
+                    logger.LogError("Failed Seed ApiKey in SeedData: {apiKey}", apiKey);
+                }
             }
         }
 

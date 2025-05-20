@@ -30,6 +30,8 @@
 .player-list-table th,
 .player-list-table td {
   border: 1px solid var(--light-color);
+  font-size: 14px;
+  font-weight: 600;
   padding: 12px;
   text-align: left;
   color: var(--light-color);
@@ -47,8 +49,3 @@
 .player-search {
   margin-bottom: 16px;
 }
-
-// ::ng-deep .ngx-pagination .current {
-//   background-color:var(--primary-light-color) !important;
-//   color: #fff !important;
-// }

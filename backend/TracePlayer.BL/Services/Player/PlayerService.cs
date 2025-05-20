@@ -58,46 +58,15 @@ namespace TracePlayer.BL.Services.Player
             return ServiceResult<long>.Ok(id.Value);
         }
 
-        public async Task<ServiceResult<GetCSPlayerResponse?>> GetCSPlayerResponse(string steamId)
+        public async Task<ServiceResult<GetPlayerResponse?>> GetPlayerResponse(string steamId)
         {
             var id = await _playerRepository.GetId(steamId);
             if (id is null)
             {
-                return ServiceResult<GetCSPlayerResponse?>.Fail("Player profile not found for this user.");
+                return ServiceResult<GetPlayerResponse?>.Fail("Player profile not found for this user.");
             }
 
-            var player = await _playerRepository.Get(id.Value);
-
-            if (player is null)
-            {
-                return ServiceResult<GetCSPlayerResponse?>.Fail($"Player with id {id} not found.");
-            }
-
-            FullSteamPlayerInfo? fullSteamPlayerInfo = null;
-            if (!string.IsNullOrEmpty(player.SteamId64))
-            {
-                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
-                if(fullSteamPlayerInfo?.PlayerInfo is not null)
-                {
-                    fullSteamPlayerInfo.PlayerInfo.Profileurl = fullSteamPlayerInfo.PlayerInfo.Profileurl.Replace("https", "http");
-                    fullSteamPlayerInfo.PlayerInfo.Avatarfull = fullSteamPlayerInfo.PlayerInfo.Avatarfull.Replace("https", "http");
-                }
-            }
-
-            var namesRows = string.Join("; ", player.Names
-                .OrderByDescending(n => n.AddedAt)
-                .Select(n => n.Name));
-
-            var safeNamesRows = WebUtility.HtmlEncode(namesRows);
-
-            var response = new GetCSPlayerResponse
-            {
-                SteamId = player.SteamId,
-                FullSteamPlayerInfo = fullSteamPlayerInfo,
-                NamesRows = safeNamesRows.Substring(0, Math.Min(safeNamesRows.Length, 1500))
-            };
-
-            return ServiceResult<GetCSPlayerResponse?>.Ok(response);
+            return await GetPlayerResponse(id.Value);
         }
 
         public async Task<ServiceResult<GetPlayerResponse?>> GetPlayerResponse(long id)
