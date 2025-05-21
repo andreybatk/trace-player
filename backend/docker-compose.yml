@@ -22,8 +22,8 @@ services:
           - postgres
         container_name: traceplayer.api
         image: traceplayer.api
-        # volumes:
-        #   - ./app/GeoLite2/GeoLite2-Country.mmdb:/app/GeoLite2-Country.mmdb
+        volumes:
+            - ./data:/data
         build:
           context: .
           dockerfile: TracePlayer.API/Dockerfile

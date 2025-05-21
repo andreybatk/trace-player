@@ -29,16 +29,18 @@ namespace TracePlayer.BL.Services.Player
 
         public async Task AddNames(AddPlayersNamesRequest request)
         {
-            var players = request.Players.Select(p => new AddPlayerDto
+            var playersTasks = request.Players.Select(async p => new AddPlayerDto
             {
                 SteamId = p.SteamId,
                 SteamId64 = SteamIdConverter.ConvertSteamIdToSteamId64(p.SteamId),
                 Ip = p.Ip,
                 Name = p.Name,
-                CountryCode = _geoService.GetCountryCode(p.Ip)
-            }).ToList();
+                CountryCode = await _geoService.GetCountryCode(p.Ip)
+            });
 
-            await _playerRepository.AddNames(players, request.Server);
+            var players = await Task.WhenAll(playersTasks);
+
+            await _playerRepository.AddNames(players.ToList(), request.Server);
         }
 
         public async Task<ServiceResult<long>> GetIdByUserId(Guid userId)

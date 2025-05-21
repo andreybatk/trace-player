@@ -16,10 +16,10 @@ namespace TracePlayer.BL.DiContainer
             services.AddScoped<AccessTokenGeneratorService>();
             services.AddScoped<ApiKeyService>();
             services.AddScoped<PlayerService>();
+            services.AddScoped<GeoService>();
 
             services.AddSingleton<RefreshTokenGeneratorService>();
             services.AddSingleton<TokenGeneratorService>();
-            services.AddSingleton<GeoService>();
             services.AddSingleton<SteamApiService>();
             services.AddSingleton<FungunApiService>();
 

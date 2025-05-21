@@ -1,27 +1,28 @@
-﻿using MaxMind.GeoIP2;
+﻿
+using Microsoft.Extensions.Logging;
+using TracePlayer.DB.Repositories.Geo;
 
 namespace TracePlayer.BL.Services.Geo
 {
     public class GeoService
     {
-        private readonly DatabaseReader _reader;
+        private readonly IGeoRepository _geoRepository;
+        private readonly ILogger<GeoService> _logger;
 
-        public GeoService()
+        public GeoService(IGeoRepository geoRepository, ILogger<GeoService> logger)
         {
-            _reader = new DatabaseReader("GeoLite2-Country.mmdb");
+            _geoRepository = geoRepository;
+            _logger = logger;
         }
 
-        public string? GetCountryCode(string ip)
+        public async Task<string?> GetCountryCode(string ip)
         {
-            try
-            {
-                var country = _reader.Country(ip);
-                return country?.Country?.IsoCode;
-            }
-            catch
-            {
+            var ipLong = GeoServiceHelper.IpToLong(ip);
+
+            if(ipLong == 0)
                 return null;
-            }
+
+            return await _geoRepository.GetCountryCode(ipLong);
         }
     }
 }

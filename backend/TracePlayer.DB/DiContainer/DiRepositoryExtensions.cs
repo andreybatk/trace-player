@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TracePlayer.DB.Repositories.Players;
 using TracePlayer.DB.Repositories.Users;
 using TracePlayer.DB.Repositories.Api;
+using TracePlayer.DB.Repositories.Geo;
 
 namespace TracePlayer.DB.DiContainer
 {
@@ -14,6 +15,7 @@ namespace TracePlayer.DB.DiContainer
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IApiKeyRepository, ApiKeyRepository>();
+            services.AddScoped<IGeoRepository, GeoRepository>();
         }
     }
 }

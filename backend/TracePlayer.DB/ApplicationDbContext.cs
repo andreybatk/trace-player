@@ -8,8 +8,17 @@ namespace TracePlayer.DB
     public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         // dotnet ef migrations add InitialCreate -p TracePlayer.DB\TracePlayer.DB.csproj -s TracePlayer.API\TracePlayer.API.csproj
-        // docker cp .\tran_hnsblock_for_pg.sql traceplayer-postgres:/tran_hnsblock_for_pg.sql
-        // docker exec -it traceplayer-postgres psql -U postgres -d traceplayer -f /tran_hnsblock_for_pg.sql
+
+        // docker cp .\IP2LOCATION-LITE-DB1.CSV traceplayer-postgres:/tmp/IP2LOCATION-LITE-DB1.CSV
+        // docker cp .\init_tran_hnsblock_for_pg.sql traceplayer-postgres:/init_tran_hnsblock_for_pg.sql
+        // docker cp .\init_ip_countries_for_pg.sql traceplayer-postgres:/init_ip_countries_for_pg.sql
+        // docker cp .\insert_player_info_pg.sql traceplayer-postgres:/insert_player_info_pg.sql
+        // docker cp .\update_player_ips_pg.sql traceplayer-postgres:/update_player_ips_pg.sql
+        // docker exec -it traceplayer-postgres psql -U postgres -d traceplayer -f /init_tran_hnsblock_for_pg.sql
+        // docker exec -it traceplayer-postgres psql -U postgres -d traceplayer -f /init_ip_countries_for_pg.sql
+        // docker exec -it traceplayer-postgres psql -U postgres -d traceplayer -f /insert_player_info_pg.sql
+        // docker exec -it traceplayer-postgres psql -U postgres -d traceplayer -f /update_player_ips_pg.sql
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             //Database.EnsureDeleted();
@@ -21,6 +30,7 @@ namespace TracePlayer.DB
         public DbSet<PlayerName> PlayerNames { get; set; }
         public DbSet<PlayerIp> PlayerIps { get; set; }
         public DbSet<ApiKey> ApiKeys { get; set; }
+        public DbSet<IpCountry> IpCountries { get; set; }
        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,6 +72,31 @@ namespace TracePlayer.DB
             modelBuilder.Entity<ApiKey>()
                 .HasIndex(k => k.ServerIp)
                 .IsUnique();
+
+            modelBuilder.Entity<IpCountry>(entity =>
+            {
+                entity.ToTable("ip_country");
+
+                entity.HasKey(e => new { e.IpFrom, e.IpTo });
+
+                entity.Property(e => e.IpFrom)
+                      .HasColumnName("ip_from")
+                      .HasColumnType("bigint");
+
+                entity.Property(e => e.IpTo)
+                      .HasColumnName("ip_to")
+                      .HasColumnType("bigint");
+
+                entity.Property(e => e.CountryCode)
+                      .HasColumnName("country_code")
+                      .HasColumnType("char(2)")
+                      .IsRequired();
+
+                entity.Property(e => e.CountryName)
+                      .HasColumnName("country_name")
+                      .HasColumnType("text")
+                      .IsRequired();
+            });
         }
     }
 }

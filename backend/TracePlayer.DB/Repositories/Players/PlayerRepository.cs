@@ -68,19 +68,21 @@ namespace TracePlayer.DB.Repositories.Players
         public async Task<Player?> Get(long playerId)
         {
             return await _context.Players
-            .Where(p => p.Id == playerId)
-            .Select(p => new Player
-            {
-                Id = p.Id,
-                SteamId = p.SteamId,
-                SteamId64 = p.SteamId64,
-                Names = p.Names
-                    .OrderBy(n => n.AddedAt)
-                    .ToList(),
-
-                Ips = p.Ips.ToList()
-            })
-            .FirstOrDefaultAsync();
+                .Where(p => p.Id == playerId)
+                .Select(p => new Player
+                {
+                    Id = p.Id,
+                    SteamId = p.SteamId,
+                    SteamId64 = p.SteamId64,
+                    Names = p.Names
+                        .OrderBy(n => n.AddedAt)
+                        .ToList(),
+                    Ips = p.Ips
+                        .Where(i => i.CountryCode != null)
+                        .OrderBy(i => i.AddedAt)
+                        .ToList(),
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<long?> GetId(string steamId)
@@ -115,7 +117,10 @@ namespace TracePlayer.DB.Repositories.Players
                     Id = p.Id,
                     SteamId = p.SteamId,
                     Name = p.Names.Select(n => n.Name).FirstOrDefault(),
-                    CountryCode = p.Ips.Select(n => n.CountryCode).FirstOrDefault(),
+                    CountryCode = p.Ips
+                        .Where(ip => ip.CountryCode != null)
+                        .Select(ip => ip.CountryCode)
+                        .FirstOrDefault(),
                 })
                 .ToListAsync();
 
