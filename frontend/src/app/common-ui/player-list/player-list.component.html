@@ -7,30 +7,30 @@
     class="tt-input player-search"
     [(ngModel)]="searchSteamId"
     (input)="onSearchChange()" />
-
-  <table class="player-list-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Steam ID</th>
-        <th>Имя</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let player of players | paginate: paginationConfig; let i = index" [routerLink]="['/player', player.id]">
-        <td>{{ (paginationConfig.currentPage - 1) * paginationConfig.itemsPerPage + i + 1 }}</td>
-        <td>{{ player.steamId }}</td>
-        <td>
-          <img *ngIf="player.countryCode"
-              [src]="'https://flagcdn.com/24x18/' + player.countryCode.toLowerCase() + '.png'"
-              [alt]="player.countryCode + ' flag'" width="24" height="18"
-              style="margin-right: 6px;" />
-          {{ player.name }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
+  <div class="table-responsive">
+    <table class="player-list-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Steam ID</th>
+          <th>Имя</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let player of players | paginate: paginationConfig; let i = index" [routerLink]="['/player', player.id]">
+          <td>{{ (paginationConfig.currentPage - 1) * paginationConfig.itemsPerPage + i + 1 }}</td>
+          <td>{{ player.steamId }}</td>
+          <td>
+            <img *ngIf="player.countryCode"
+                [src]="'https://flagcdn.com/24x18/' + player.countryCode.toLowerCase() + '.png'"
+                [alt]="player.countryCode + ' flag'" width="24" height="18"
+                style="margin-right: 6px;" />
+            {{ player.name }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <pagination-controls
     class="pagination"
     [id]="paginationConfig.id"

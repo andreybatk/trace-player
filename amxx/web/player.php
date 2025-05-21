@@ -87,28 +87,6 @@ $ips = $data['ips'] ?? [];
           </table>
         </div>
       <?php endif; ?>
-
-      <?php if (count($ips)): ?>
-        <div class="player-ips-section">
-          <h3>История подключений</h3>
-          <table class="player-table">
-            <thead><tr><th>Страна</th><th>Дата</th></tr></thead>
-            <tbody>
-              <?php foreach ($ips as $ip): ?>
-                <tr>
-                  <td>
-                    <?php if (!empty($ip['countryCode'])): ?>
-                      <img src="http://flagcdn.com/24x18/<?= strtolower($ip['countryCode']) ?>.png" alt="flag">
-                      <?= htmlspecialchars($ip['countryCode']) ?>
-                    <?php endif; ?>
-                  </td>
-                  <td><?= date('d.m.Y', strtotime($ip['addedAt'])) ?></td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-          </div>
-      <?php endif; ?>
     </div>
   </div>
 </body>
