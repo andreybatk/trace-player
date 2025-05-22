@@ -22,7 +22,7 @@ SELECT
 FROM ps_plr_ids_name n
 JOIN ps_plr_ids_worldid w ON n.plrid = w.plrid
 JOIN "Players" p ON p."SteamId" = w.worldid
-WHERE (w.worldid LIKE 'STEAM_0:%' OR w.worldid LIKE 'STEAM_1:%')
+WHERE n.name IS NOT NULL AND n.name <> ''
 ORDER BY n.plrid, n.lastseen;
 
 INSERT INTO "PlayerIps" ("Ip", "CountryCode", "AddedAt", "PlayerId")
@@ -33,7 +33,8 @@ SELECT
     p."Id"
 FROM ps_plr_ids_ipaddr i
 JOIN ps_plr_ids_worldid w ON i.plrid = w.plrid
-JOIN "Players" p ON p."SteamId" = w.worldid;
+JOIN "Players" p ON p."SteamId" = w.worldid
+WHERE i.ipaddr IS NOT NULL;
 
 TRUNCATE TABLE ps_plr_ids_name RESTART IDENTITY;
 DROP TABLE IF EXISTS ps_plr_ids_name;
