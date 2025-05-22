@@ -48,11 +48,26 @@
   background-color: var(--gray-color-a);
 }
 
-.player-list-table tr:hover {
+.player-list-table tr .table-link:hover {
   background-color: rgba(255, 255, 255, 0.05);
   cursor: pointer;
 }
 
 .player-search {
   margin-bottom: 16px;
+}
+
+.search-input {
+  position: relative;
+}
+
+button {
+  position: absolute;
+  top:55%;
+  right: 30px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #FFFFFFBF;
+  z-index: 1;
 }

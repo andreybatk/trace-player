@@ -60,15 +60,40 @@ namespace TracePlayer.BL.Services.Player
             return ServiceResult<long>.Ok(id.Value);
         }
 
-        public async Task<ServiceResult<GetPlayerResponse?>> GetPlayerResponse(string steamId)
+        public async Task<ServiceResult<GetCSPlayerResponse?>> GetCSPlayerResponse(string steamId)
         {
             var id = await _playerRepository.GetId(steamId);
             if (id is null)
             {
-                return ServiceResult<GetPlayerResponse?>.Fail("Player profile not found for this user.");
+                return ServiceResult<GetCSPlayerResponse?>.Fail("Player profile not found for this user.");
             }
 
-            return await GetPlayerResponse(id.Value);
+            var player = await _playerRepository.Get(id.Value);
+
+            if (player is null)
+            {
+                return ServiceResult<GetCSPlayerResponse?>.Fail($"Player with id {id} not found.");
+            }
+
+            FullSteamPlayerInfo? fullSteamPlayerInfo = null;
+            if (!string.IsNullOrEmpty(player.SteamId64))
+            {
+                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
+            }
+
+            var response = new GetCSPlayerResponse
+            {
+                SteamId = player.SteamId,
+                FullSteamPlayerInfo = fullSteamPlayerInfo,
+                Names = player.Names.Select(name => new PlayerNameResponse
+                {
+                    Name = name.Name,
+                    AddedAt = name.AddedAt,
+                    Server = name.Server
+                }).ToList()
+            };
+
+            return ServiceResult<GetCSPlayerResponse?>.Ok(response);
         }
 
         public async Task<ServiceResult<GetPlayerResponse?>> GetPlayerResponse(long id)

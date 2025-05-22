@@ -2,10 +2,9 @@
 
 namespace TracePlayer.Contracts.Player
 {
-    public class GetPlayerResponse
+    public class GetCSPlayerResponse
     {
         public string SteamId { get; set; } = string.Empty;
-        public List<PlayerIpResponse> Ips { get; set; } = [];
         public List<PlayerNameResponse> Names { get; set; } = [];
         public FullSteamPlayerInfo? FullSteamPlayerInfo { get; set; }
     }

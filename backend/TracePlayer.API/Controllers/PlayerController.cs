@@ -69,9 +69,9 @@ namespace TracePlayer.API.Controllers
         [HttpGet("bySteamId")]
         [ProducesResponseType(typeof(GetPlayerResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPlayer([FromQuery] string steamId)
+        public async Task<IActionResult> GetCSPlayer([FromQuery] string steamId)
         {
-            var result = await _playerService.GetPlayerResponse(steamId);
+            var result = await _playerService.GetCSPlayerResponse(steamId);
             if (!result.Success)
             {
                 return NotFound(result.ErrorMessage);

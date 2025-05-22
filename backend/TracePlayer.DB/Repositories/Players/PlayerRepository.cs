@@ -79,7 +79,8 @@ namespace TracePlayer.DB.Repositories.Players
                         .ToList(),
                     Ips = p.Ips
                         .Where(i => i.CountryCode != null)
-                        .OrderBy(i => i.AddedAt)
+                        .OrderByDescending(i => i.AddedAt)
+                        .Take(10)
                         .ToList(),
                 })
                 .FirstOrDefaultAsync();
@@ -99,8 +100,7 @@ namespace TracePlayer.DB.Repositories.Players
                 .Include(p => p.Names)
                 .Include(p => p.Ips)
                 .Where(p =>
-                    (string.IsNullOrWhiteSpace(steamId) || p.SteamId == steamId));
-
+                    (string.IsNullOrWhiteSpace(steamId) || p.SteamId.Contains(steamId)));
 
             query = query.OrderByDescending(p => p.Names
                 .OrderByDescending(n => n.AddedAt)
