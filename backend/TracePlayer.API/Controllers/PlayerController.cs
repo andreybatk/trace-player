@@ -67,11 +67,17 @@ namespace TracePlayer.API.Controllers
         }
 
         [HttpGet("bySteamId")]
-        [ProducesResponseType(typeof(GetPlayerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetCSPlayerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetCSPlayer([FromQuery] string steamId)
         {
-            var result = await _playerService.GetCSPlayerResponse(steamId);
+            if (!Request.Headers.TryGetValue("X-STEAM-API-Key", out var extractedSteamApiKey))
+            {
+                return Unauthorized("STEAM-API Key is missing.");
+            }
+
+            var result = await _playerService.GetCSPlayerResponse(steamId, extractedSteamApiKey.ToString());
             if (!result.Success)
             {
                 return NotFound(result.ErrorMessage);

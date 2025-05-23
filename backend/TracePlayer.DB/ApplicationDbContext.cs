@@ -40,6 +40,8 @@ namespace TracePlayer.DB
             {
                 entity.HasKey(p => p.Id);
 
+                entity.HasIndex(p => p.SteamId);
+
                 entity.HasMany(p => p.Names)
                       .WithOne(n => n.Player)
                       .HasForeignKey(n => n.PlayerId)
@@ -54,6 +56,9 @@ namespace TracePlayer.DB
             modelBuilder.Entity<PlayerName>(entity =>
             {
                 entity.HasKey(n => n.Id);
+
+                entity.HasIndex(n => n.Name);
+
                 entity.HasOne(n => n.Player)
                       .WithMany(p => p.Names)
                       .HasForeignKey(n => n.PlayerId)

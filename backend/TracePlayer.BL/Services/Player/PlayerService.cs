@@ -60,7 +60,7 @@ namespace TracePlayer.BL.Services.Player
             return ServiceResult<long>.Ok(id.Value);
         }
 
-        public async Task<ServiceResult<GetCSPlayerResponse?>> GetCSPlayerResponse(string steamId)
+        public async Task<ServiceResult<GetCSPlayerResponse?>> GetCSPlayerResponse(string steamId, string? steamApiKey)
         {
             var id = await _playerRepository.GetId(steamId);
             if (id is null)
@@ -78,7 +78,7 @@ namespace TracePlayer.BL.Services.Player
             FullSteamPlayerInfo? fullSteamPlayerInfo = null;
             if (!string.IsNullOrEmpty(player.SteamId64))
             {
-                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
+                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64, steamApiKey);
             }
 
             var response = new GetCSPlayerResponse
@@ -134,7 +134,7 @@ namespace TracePlayer.BL.Services.Player
         public async Task<ServiceResult<PlayersWithTotalCountResponse>> GetPaginated(GetPlayersPaginationRequest request)
         {
             var (Items, TotalCount) = await _playerRepository.GetPaginated(
-                request.SteamId,
+                request.Search,
                 request.Page,
                 request.PageSize
             );

@@ -94,13 +94,19 @@ namespace TracePlayer.DB.Repositories.Players
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<(List<GetPlayerPaginationResponse> Items, int TotalCount)> GetPaginated(string? steamId, int page, int pageSize)
+        public async Task<(List<GetPlayerPaginationResponse> Items, int TotalCount)> GetPaginated(string? search, int page, int pageSize)
         {
             var query = _context.Players
                 .Include(p => p.Names)
                 .Include(p => p.Ips)
-                .Where(p =>
-                    (string.IsNullOrWhiteSpace(steamId) || p.SteamId.Contains(steamId)));
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p =>
+                    p.SteamId.Contains(search) ||
+                    p.Names.Any(n => n.Name.Contains(search)));
+            }
 
             query = query.OrderByDescending(p => p.Names
                 .OrderByDescending(n => n.AddedAt)

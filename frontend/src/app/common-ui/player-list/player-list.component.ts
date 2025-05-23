@@ -4,7 +4,7 @@ import { PlayerItem } from '../../data/interfaces/player.interface';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-player-list',
@@ -14,11 +14,13 @@ import { RouterModule } from '@angular/router';
 })
 export class PlayerListComponent implements OnInit {
   playerService = inject(PlayerService);
+  router = inject(Router);
+  route = inject(ActivatedRoute);
   players: PlayerItem[] = [];;
   totalCount = 0;
   page = 1;
   pageSize = 30;
-  searchSteamId: string = '';
+  search: string = '';
 
   updatePaginationConfig() {
     this.paginationConfig = {
@@ -41,11 +43,15 @@ export class PlayerListComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+    this.search = params['search'] || '';
+    this.page = +params['page'] || 1;
     this.loadPlayers();
+  });
   }
 
   loadPlayers(): void {
-    this.playerService.getPlayersPaginated(this.searchSteamId, this.page, this.pageSize).subscribe(response => {
+    this.playerService.getPlayersPaginated(this.search, this.page, this.pageSize).subscribe(response => {
       this.players = response.players;
       this.totalCount = response.totalCount;
       this.updatePaginationConfig();
@@ -58,7 +64,10 @@ export class PlayerListComponent implements OnInit {
   }
 
   onSearchChange(): void {
-    this.page = 1;
+    this.router.navigate([], {
+    queryParams: { search: this.search || null, page: 1 },
+    queryParamsHandling: 'merge',
+    });
     this.loadPlayers();
   }
 }

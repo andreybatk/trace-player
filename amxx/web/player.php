@@ -1,7 +1,8 @@
 <?php
 // Пример: /player.php?steamId=STEAM_1:1:12345678
 header("Content-Type: text/html; charset=UTF-8");
-$apiKey = "apiKey";
+$apiKey = "";
+$steamApiKey = "";
 $steamId = $_GET['steamId'] ?? null;
 
 if (!$steamId) {
@@ -14,7 +15,8 @@ $options = [
     "http" => [
         "method" => "GET",
         "header" => "Accept: text/plain\r\n" .
-                    "X-API-Key: $apiKey\r\n"
+                    "X-API-Key: $apiKey\r\n" .
+                    "X-STEAM-API-Key: $steamApiKey\r\n" 
     ]
 ];
 

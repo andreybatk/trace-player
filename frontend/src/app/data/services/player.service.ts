@@ -14,7 +14,7 @@ export class PlayerService {
   private baseApiUrl = `${this.baseUrl}/api/player`;
 
   getPlayersPaginated(
-    steamId: string | null = null,
+    search: string | null = null,
     page: number = 1,
     pageSize: number = 10
   ): Observable<PaginatedPlayersResponse> {
@@ -22,8 +22,8 @@ export class PlayerService {
       .set('page', page)
       .set('pageSize', pageSize);
 
-    if (steamId) {
-      params = params.set('steamId', steamId);
+    if (search) {
+      params = params.set('search', search);
     }
 
     return this.http.get<PaginatedPlayersResponse>(this.baseApiUrl, { params });

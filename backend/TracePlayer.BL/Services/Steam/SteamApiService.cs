@@ -22,19 +22,24 @@ namespace TracePlayer.BL.Services.Steam
             _apiKey = configuration["Steam:ApiKey"] ?? throw new InvalidOperationException("Steam API key is missing in configuration.");
         }
 
-        public async Task<FullSteamPlayerInfo?> GetFullSteamPlayerInfoAsync(string steamId64)
+        public async Task<FullSteamPlayerInfo?> GetFullSteamPlayerInfoAsync(string steamId64, string? steamApiKey = null)
         {
             if (_cache.TryGetValue(steamId64, out FullSteamPlayerInfo? cached))
                 return cached;
 
             try
             {
-                var profileUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={_apiKey}&steamids={steamId64}";
+                if(steamApiKey is null)
+                {
+                    steamApiKey = _apiKey;
+                }
+
+                var profileUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={steamApiKey}&steamids={steamId64}";
                 var profileResponse = await _httpClient.GetFromJsonAsync<SteamApiResponse>(profileUrl);
                 var player = profileResponse?.Response?.Players?.FirstOrDefault();
 
 
-                var bansUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={_apiKey}&steamids={steamId64}";
+                var bansUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={steamApiKey}&steamids={steamId64}";
                 var banResponse = await _httpClient.GetFromJsonAsync<SteamBanResponse>(bansUrl);
                 var banInfo = banResponse?.Players?.FirstOrDefault();
 
