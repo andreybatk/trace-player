@@ -43,10 +43,20 @@ namespace TracePlayer.BL.Services.Steam
                 var banResponse = await _httpClient.GetFromJsonAsync<SteamBanResponse>(bansUrl);
                 var banInfo = banResponse?.Players?.FirstOrDefault();
 
+                var gamesUrl = $"https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key={steamApiKey}&steamid={steamId64}&include_appinfo=true&appids_filter[0]=10";
+                var gamesResponse = await _httpClient.GetFromJsonAsync<SteamGamesResponse>(gamesUrl);
+                var gameInfo = gamesResponse?.Response?.Games?.FirstOrDefault();
+
+                if(gameInfo?.PlaytimeMinutes == 0)
+                {
+                    gameInfo = null;
+                }
+
                 var fullInfo = new FullSteamPlayerInfo
                 {
                     PlayerInfo = player,
-                    BanInfo = banInfo
+                    BanInfo = banInfo,
+                    GameInfo = gameInfo
                 };
 
                 if(player is not null && banInfo is not null)

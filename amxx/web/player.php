@@ -1,8 +1,8 @@
 <?php
 // Пример: /player.php?steamId=STEAM_1:1:12345678
 header("Content-Type: text/html; charset=UTF-8");
-$apiKey = "";
-$steamApiKey = "";
+$apiKey = "apiKey";
+$steamApiKey = "steamApiKey";
 $steamId = $_GET['steamId'] ?? null;
 
 if (!$steamId) {
@@ -31,6 +31,7 @@ if (!$data) {
 
 $info = $data['fullSteamPlayerInfo']['playerInfo'] ?? null;
 $ban = $data['fullSteamPlayerInfo']['banInfo'] ?? null;
+$game = $data['fullSteamPlayerInfo']['gameInfo'] ?? null;
 $names = $data['names'] ?? [];
 $ips = $data['ips'] ?? [];
 
@@ -59,6 +60,11 @@ $ips = $data['ips'] ?? [];
 
         <h3>Steam ID</h3>
         <p><?= htmlspecialchars($steamId) ?></p>
+        <?php if ($game): ?>
+          <h3>Counter-Strike</h3>
+          <p><?= intval($game['playtime_forever'] / 60) ?> ч. всего</p>
+          <p><?= intval($game['playtime_2weeks'] / 60) ?> ч. за последние 2 недели</p>
+        <?php endif; ?>
       </div>
 
       <div class="player-info-middle">

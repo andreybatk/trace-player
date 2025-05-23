@@ -33,9 +33,15 @@ export interface SteamPlayerBanInfo {
   numberOfGameBans: number;
 }
 
+export interface SteamPlayerGameInfo {
+  playtime_forever: number;
+  playtime_2weeks: number;
+}
+
 export interface FullSteamPlayerInfo {
   playerInfo: SteamPlayerInfo | null;
   banInfo: SteamPlayerBanInfo | null;
+  gameInfo: SteamPlayerGameInfo | null;
 }
 
 export interface PlayerResponse {

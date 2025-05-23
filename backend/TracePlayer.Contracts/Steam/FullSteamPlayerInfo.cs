@@ -4,5 +4,6 @@
     {
         public SteamPlayerInfo? PlayerInfo { get; set; }
         public SteamPlayerBanInfo? BanInfo { get; set; }
+        public SteamGame? GameInfo { get; set; }
     }
 }
