@@ -11,7 +11,6 @@
 .player-info {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-columns: 1fr 1fr;
   background-color: var(--dark-color);
   border-radius: 8px;
   border: 1px solid var(--primary-color);
@@ -90,6 +89,18 @@
 .table-wrraper {
   width: 100%;
 	margin: 0 auto;
+}
+
+.status-danger {
+  color: var(--red-light-color);
+}
+
+.status-warning {
+  color: var(--primary-light-color);
+}
+
+.status-success {
+  color: var(--green-light-color);
 }
 
 @media (max-width: 768px) {

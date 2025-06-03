@@ -2,6 +2,7 @@
 {
     public class FungunApiResponse
     {
-        public List<FungunApiPlayer> Data { get; set; } = [];
+        public Dictionary<string, List<FungunPlayerResult>> Data { get; set; } = [];
+        public bool Success { get; set; }
     }
 }

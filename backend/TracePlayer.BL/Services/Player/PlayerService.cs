@@ -1,8 +1,8 @@
-﻿using System.Net;
-using TracePlayer.BL.Helpers;
+﻿using TracePlayer.BL.Helpers;
 using TracePlayer.BL.Services.Fungun;
 using TracePlayer.BL.Services.Geo;
 using TracePlayer.BL.Services.Steam;
+using TracePlayer.Contracts.Fungun;
 using TracePlayer.Contracts.Player;
 using TracePlayer.Contracts.Steam;
 using TracePlayer.DB.Repositories.Players;
@@ -60,7 +60,7 @@ namespace TracePlayer.BL.Services.Player
             return ServiceResult<long>.Ok(id.Value);
         }
 
-        public async Task<ServiceResult<GetCSPlayerResponse?>> GetCSPlayerResponse(string steamId, string? steamApiKey)
+        public async Task<ServiceResult<GetCSPlayerResponse?>> GetCSPlayerResponse(string steamId, string steamApiKey, string fungunApiKey, CancellationToken cancellationToken)
         {
             var id = await _playerRepository.GetId(steamId);
             if (id is null)
@@ -78,13 +78,21 @@ namespace TracePlayer.BL.Services.Player
             FullSteamPlayerInfo? fullSteamPlayerInfo = null;
             if (!string.IsNullOrEmpty(player.SteamId64))
             {
-                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64, steamApiKey);
+                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64, steamApiKey, cancellationToken);
             }
+
+            FungunPlayer? fungunPlayer = null;
+            fungunPlayer = await _fungunApiService.GetFungunEntriesBySteamIdAsync(player.SteamId, fungunApiKey, cancellationToken);
 
             var response = new GetCSPlayerResponse
             {
                 SteamId = player.SteamId,
+                CountryCode = player.Ips
+                        .Where(ip => ip.CountryCode != null)
+                        .Select(ip => ip.CountryCode)
+                        .LastOrDefault(),
                 FullSteamPlayerInfo = fullSteamPlayerInfo,
+                FungunPlayer = fungunPlayer,
                 Names = player.Names.Select(name => new PlayerNameResponse
                 {
                     Name = name.Name,
@@ -96,7 +104,7 @@ namespace TracePlayer.BL.Services.Player
             return ServiceResult<GetCSPlayerResponse?>.Ok(response);
         }
 
-        public async Task<ServiceResult<GetPlayerResponse?>> GetPlayerResponse(long id)
+        public async Task<ServiceResult<GetPlayerResponse?>> GetPlayerResponse(long id, CancellationToken cancellationToken)
         {
             var player = await _playerRepository.Get(id);
 
@@ -108,13 +116,21 @@ namespace TracePlayer.BL.Services.Player
             FullSteamPlayerInfo? fullSteamPlayerInfo = null;
             if (!string.IsNullOrEmpty(player.SteamId64))
             {
-                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64);
+                fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64, null, cancellationToken);
             }
+
+            FungunPlayer? fungunPlayer = null;
+            fungunPlayer = await _fungunApiService.GetFungunEntriesBySteamIdAsync(player.SteamId, null, cancellationToken);
 
             var response = new GetPlayerResponse
             {
                 SteamId = player.SteamId,
+                CountryCode = player.Ips
+                        .Where(ip => ip.CountryCode != null)
+                        .Select(ip => ip.CountryCode)
+                        .LastOrDefault(),
                 FullSteamPlayerInfo = fullSteamPlayerInfo,
+                FungunPlayer = fungunPlayer,
                 Ips = player.Ips.Select(ip => new PlayerIpResponse
                 {
                     CountryCode = ip.CountryCode,

@@ -18,8 +18,7 @@ body {
 
 .player-info {
   display: grid;
-  /* grid-template-columns: 1fr 1fr 1fr; lol*/
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   justify-content: space-between;
   background-color: #0d0d0d;
   border-radius: 8px;
@@ -80,6 +79,18 @@ body {
 
 .danger-bg {
   background: #96233f;
+}
+
+.status-danger {
+  color: #cf3f63;
+}
+
+.status-warning {
+  color: #e6c865;
+}
+
+.status-success {
+  color: #8fae8f;
 }
 
 @media (max-width: 768px) {

@@ -1,13 +1,17 @@
-﻿namespace TracePlayer.Contracts.Fungun
+﻿using System.Text.Json.Serialization;
+
+namespace TracePlayer.Contracts.Fungun
 {
     public class FungunPlayerResult
     {
-        public string Nick { get; set; } = string.Empty;
-        public string UserIp { get; set; } = string.Empty;
-        public string Hostname { get; set; } = string.Empty;
+        [JsonPropertyName("report_id")]
+        public int ReportId { get; set; }
+
+        [JsonPropertyName("steamid_game")]
+        public string SteamIdGame { get; set; } = string.Empty;
+
+        [JsonPropertyName("result_status")]
         public string ResultStatus { get; set; } = string.Empty;
-        public string Before { get; set; } = string.Empty;
-        public string Time { get; set; } = string.Empty;
-        public string MoreLink { get; set; } = string.Empty;
+        public int Uuid { get; set; }
     }
 }

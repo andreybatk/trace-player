@@ -54,9 +54,9 @@ namespace TracePlayer.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetPlayerResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPlayer([FromRoute] long id)
+        public async Task<IActionResult> GetPlayer([FromRoute] long id, CancellationToken cancellationToken)
         {
-            var result = await _playerService.GetPlayerResponse(id);
+            var result = await _playerService.GetPlayerResponse(id, cancellationToken);
 
             if (!result.Success)
             {
@@ -68,22 +68,26 @@ namespace TracePlayer.API.Controllers
 
         [HttpGet("bySteamId")]
         [ProducesResponseType(typeof(GetCSPlayerResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCSPlayer([FromQuery] string steamId)
+        public async Task<IActionResult> GetCSPlayer([FromQuery] string steamId, CancellationToken cancellationToken)
         {
             if (!Request.Headers.TryGetValue("X-STEAM-API-Key", out var extractedSteamApiKey))
             {
                 return Unauthorized("STEAM-API Key is missing.");
             }
 
-            var result = await _playerService.GetCSPlayerResponse(steamId, extractedSteamApiKey.ToString());
+            if (!Request.Headers.TryGetValue("X-FUNGUN-API-Key", out var extractedFungunApiKey))
+            {
+                return Unauthorized("FUNGUN-API Key is missing.");
+            }
+
+            var result = await _playerService.GetCSPlayerResponse(steamId, extractedSteamApiKey.ToString(), extractedFungunApiKey.ToString(), cancellationToken);
             if (!result.Success)
             {
                 return NotFound(result.ErrorMessage);
             }
 
-            if(result.Data?.FullSteamPlayerInfo?.PlayerInfo?.Avatarfull is not null)
+            if (result.Data?.FullSteamPlayerInfo?.PlayerInfo?.Avatarfull is not null)
             {
                 result.Data.FullSteamPlayerInfo.PlayerInfo.Avatarfull = result.Data.FullSteamPlayerInfo.PlayerInfo.Avatarfull.Replace("https", "http");
             }

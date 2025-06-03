@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
+using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 using TracePlayer.Contracts.Fungun;
 
 namespace TracePlayer.BL.Services.Fungun
@@ -10,59 +13,71 @@ namespace TracePlayer.BL.Services.Fungun
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
         private readonly ILogger<FungunApiService> _logger;
+        private readonly string _apiKeyMd5;
 
-        public FungunApiService(HttpClient httpClient, IMemoryCache cache, ILogger<FungunApiService> logger)
+        public FungunApiService(HttpClient httpClient, IMemoryCache cache, ILogger<FungunApiService> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _cache = cache;
             _logger = logger;
+            _apiKeyMd5 = configuration["Fungun:ApiKeyMd5"] ?? throw new InvalidOperationException("Fungun API key is missing in configuration.");
         }
 
-        public async Task<List<FungunPlayerResult>?> GetFungunEntriesBySteamIdAsync(string steamId)
+        public async Task<FungunPlayer?> GetFungunEntriesBySteamIdAsync(string steamId, string? fungunApiKeyMd5, CancellationToken cancellationToken)
         {
-            if (_cache.TryGetValue(steamId, out List<FungunPlayerResult>? cachedResults))
+            if (_cache.TryGetValue(steamId, out FungunPlayer? cachedResults))
                 return cachedResults;
 
             try
             {
-                //TODO: переписать под api key
-                var url = $"https://fungun.net/ecd/search[value]={steamId}&search[regex]=false";
+                //TEST
+                var fungunPlayer = new FungunPlayer { LastSuccess = new FungunPlayerResult { ReportId = 15963, ResultStatus = "success" }, LastWarning = new FungunPlayerResult { ReportId = 15963, ResultStatus = "warning" }, LastDanger = new FungunPlayerResult { ReportId = 15963, ResultStatus = "danger" } };
 
-                var response = await _httpClient.GetStringAsync(url);
+                _cache.Set(steamId, fungunPlayer, TimeSpan.FromMinutes(5));
 
-                if (response.Contains("\"error\":\"Access Denied\""))
-                {
-                    _logger.LogWarning("Access Denied from Fungun API for Steam ID: {SteamId}", steamId);
-                    return null;
-                }
+                return fungunPlayer;
 
-                var result = JsonSerializer.Deserialize<FungunApiResponse>(response, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                //if(fungunApiKeyMd5 is null)
+                //{
+                //    fungunApiKeyMd5 = _apiKeyMd5;
+                //}
 
-                if (result?.Data != null)
-                {
-                    _cache.Set(steamId, result.Data, TimeSpan.FromMinutes(30));
-                    return result.Data.Select(d => new FungunPlayerResult
-                    {
-                        Nick = d.Nick,
-                        UserIp = d.User_Ip,
-                        Hostname = d.Hostname,
-                        ResultStatus = d.Result_Status,
-                        Before = d.Before,
-                        Time = d.Time,
-                        MoreLink = d.More
-                    }).ToList();
-                }
+                //var url = $"http://fungun.net/ska/eye.php?method=get&key={fungunApiKeyMd5}&steamids[]={Uri.EscapeDataString(steamId)}";
 
+                //var fungunResponse = await _httpClient.GetFromJsonAsync<FungunApiResponse>(url, cancellationToken);
+
+                //if (fungunResponse?.Success == true && fungunResponse.Data.TryGetValue(steamId, out var results))
+                //{
+                //    var lastSuccess = results.LastOrDefault(r => r.ResultStatus == "success");
+                //    var lastWarning = results.LastOrDefault(r => r.ResultStatus == "warning");
+                //    var lastDanger = results.LastOrDefault(r => r.ResultStatus == "danger");
+                //    var fungunPlayer = new FungunPlayer { LastSuccess = lastSuccess, LastWarning = lastWarning, LastDanger = lastDanger };
+
+                //    _cache.Set(steamId, fungunPlayer, TimeSpan.FromMinutes(5));
+
+                //    return fungunPlayer;
+                //}
+
+                //return null;
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Fungun API request was canceled");
                 return null;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching data from Fungun API for Steam ID: {SteamId}", steamId);
+                _logger.LogWarning(ex, "Error fetching data from Fungun API for Steam ID: {SteamId}", steamId);
                 return null;
             }
+        }
+
+        private static string CreateMD5(string input)
+        {
+            using var md5 = MD5.Create();
+            var inputBytes = Encoding.UTF8.GetBytes(input);
+            var hashBytes = md5.ComputeHash(inputBytes);
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
     }
 }

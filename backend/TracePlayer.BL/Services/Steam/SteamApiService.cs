@@ -22,7 +22,7 @@ namespace TracePlayer.BL.Services.Steam
             _apiKey = configuration["Steam:ApiKey"] ?? throw new InvalidOperationException("Steam API key is missing in configuration.");
         }
 
-        public async Task<FullSteamPlayerInfo?> GetFullSteamPlayerInfoAsync(string steamId64, string? steamApiKey = null)
+        public async Task<FullSteamPlayerInfo?> GetFullSteamPlayerInfoAsync(string steamId64, string? steamApiKey, CancellationToken cancellationToken)
         {
             if (_cache.TryGetValue(steamId64, out FullSteamPlayerInfo? cached))
                 return cached;
@@ -35,19 +35,19 @@ namespace TracePlayer.BL.Services.Steam
                 }
 
                 var profileUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={steamApiKey}&steamids={steamId64}";
-                var profileResponse = await _httpClient.GetFromJsonAsync<SteamApiResponse>(profileUrl);
+                var profileResponse = await _httpClient.GetFromJsonAsync<SteamApiResponse>(profileUrl, cancellationToken);
                 var player = profileResponse?.Response?.Players?.FirstOrDefault();
 
 
                 var bansUrl = $"https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={steamApiKey}&steamids={steamId64}";
-                var banResponse = await _httpClient.GetFromJsonAsync<SteamBanResponse>(bansUrl);
+                var banResponse = await _httpClient.GetFromJsonAsync<SteamBanResponse>(bansUrl, cancellationToken);
                 var banInfo = banResponse?.Players?.FirstOrDefault();
 
                 var gamesUrl = $"https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key={steamApiKey}&steamid={steamId64}&include_appinfo=true&appids_filter[0]=10";
-                var gamesResponse = await _httpClient.GetFromJsonAsync<SteamGamesResponse>(gamesUrl);
+                var gamesResponse = await _httpClient.GetFromJsonAsync<SteamGamesResponse>(gamesUrl, cancellationToken);
                 var gameInfo = gamesResponse?.Response?.Games?.FirstOrDefault();
 
-                if(gameInfo?.PlaytimeMinutes == 0)
+                if (gameInfo?.PlaytimeMinutes == 0)
                 {
                     gameInfo = null;
                 }
@@ -59,21 +59,26 @@ namespace TracePlayer.BL.Services.Steam
                     GameInfo = gameInfo
                 };
 
-                if(player is not null && banInfo is not null)
+                if (player is not null && banInfo is not null && gameInfo is not null)
                 {
                     _cache.Set(steamId64, fullInfo, TimeSpan.FromMinutes(30));
                 }
 
                 return fullInfo;
             }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Steam API request was canceled");
+                return null;
+            }
             catch (HttpRequestException ex) when ((ex.StatusCode ?? 0) == HttpStatusCode.TooManyRequests)
             {
-                _logger.LogError(ex, "Steam API rate limit exceeded.");
+                _logger.LogWarning("Steam API rate limit exceeded.");
                 return null;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при получении информации о Steam-профиле: {SteamId}", steamId64);
+                _logger.LogWarning(ex, "Ошибка при получении информации о Steam-профиле: {SteamId}", steamId64);
                 return null;
             }
         }

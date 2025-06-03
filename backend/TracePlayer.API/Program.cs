@@ -33,8 +33,14 @@ namespace TracePlayer.API
             builder.Services.AddEndpointsApiExplorer();
 
             builder.Services.AddMemoryCache();
-            builder.Services.AddHttpClient<SteamApiService>();
-            builder.Services.AddHttpClient<FungunApiService>();
+            builder.Services.AddHttpClient<SteamApiService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(5);
+            });
+            builder.Services.AddHttpClient<FungunApiService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(5);
+            });
 
             builder.Services.AddSwaggerGen(options =>
             {

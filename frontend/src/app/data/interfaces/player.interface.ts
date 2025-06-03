@@ -44,9 +44,22 @@ export interface FullSteamPlayerInfo {
   gameInfo: SteamPlayerGameInfo | null;
 }
 
+export interface FungunPlayer {
+  lastSuccess: FungunPlayerResult | null;
+  lastWarning: FungunPlayerResult | null;
+  lastDanger: FungunPlayerResult | null;
+}
+
+export interface FungunPlayerResult {
+  report_id: number;
+  result_status: string;
+}
+
 export interface PlayerResponse {
   steamId: string;
+  countryCode: string;
   ips: PlayerIp[];
   names: PlayerName[];
   fullSteamPlayerInfo: FullSteamPlayerInfo | null;
+  fungunPlayer: FungunPlayer | null;
 }

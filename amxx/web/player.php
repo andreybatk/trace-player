@@ -1,41 +1,39 @@
 <?php
-// Пример: /player.php?steamId=STEAM_1:1:12345678
-header("Content-Type: text/html; charset=UTF-8");
-$apiKey = "apiKey";
-$steamApiKey = "steamApiKey";
-$steamId = $_GET['steamId'] ?? null;
+  header("Content-Type: text/html; charset=UTF-8");
 
-if (!$steamId) {
+  $apiKey = "apiKey";
+  $fungunApiKeyMd5 = "fungunApiKeyMd5";
+  $steamApiKey = "steamApiKey";
+  $steamId = $_GET['steamId'] ?? null;
+
+  if (!$steamId) {
     echo "SteamID не указан";
     exit;
-}
+  }
 
-$apiUrl = "http://localhost:5000/api/player/bySteamId?steamId=$steamId";
-$options = [
+  $apiUrl = "http://localhost:5000/api/player/bySteamId?steamId=$steamId";
+
+  $options = [
     "http" => [
         "method" => "GET",
-        "header" => "Accept: text/plain\r\n" .
+        "header" => "Accept: application/json\r\n" .
                     "X-API-Key: $apiKey\r\n" .
-                    "X-STEAM-API-Key: $steamApiKey\r\n" 
+                    "X-STEAM-API-Key: $steamApiKey\r\n" .
+                    "X-FUNGUN-API-Key: $fungunApiKeyMd5\r\n"
     ]
-];
+  ];
 
-$context = stream_context_create($options);
-$response = file_get_contents($apiUrl, false, $context);
-$data = json_decode($response, true);
+  $context = stream_context_create($options);
+  $response = file_get_contents($apiUrl, false, $context);
+  $data = json_decode($response, true);
 
-if (!$data) {
-    echo "Игрок не найден";
-    exit;
-}
-
-$info = $data['fullSteamPlayerInfo']['playerInfo'] ?? null;
-$ban = $data['fullSteamPlayerInfo']['banInfo'] ?? null;
-$game = $data['fullSteamPlayerInfo']['gameInfo'] ?? null;
-$names = $data['names'] ?? [];
-$ips = $data['ips'] ?? [];
-
+  $info = $data['fullSteamPlayerInfo']['playerInfo'] ?? null;
+  $ban = $data['fullSteamPlayerInfo']['banInfo'] ?? null;
+  $game = $data['fullSteamPlayerInfo']['gameInfo'] ?? null;
+  $names = $data['names'] ?? [];
+  $fungunPlayer = $data['fungunPlayer'] ?? null;
 ?>
+
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -59,7 +57,18 @@ $ips = $data['ips'] ?? [];
         <?php endif; ?>
 
         <h3>Steam ID</h3>
-        <p><?= htmlspecialchars($steamId) ?></p>
+        <p>
+          <?= htmlspecialchars($steamId) ?>
+          <?php if ($data['countryCode']): ?>
+          <img 
+              src="http://www.geognos.com/api/en/countries/flag/<?php echo ($data['countryCode']); ?>.png"
+              alt="<?php echo htmlspecialchars($data['countryCode']); ?> flag"
+              width="24"
+              height="18"
+              style="margin-right: 6px;"
+          />
+          <?php endif; ?>
+        </p>
         <?php if ($game): ?>
           <h3>Counter-Strike</h3>
           <p><?= intval($game['playtime_forever'] / 60) ?> ч. всего</p>
@@ -75,8 +84,32 @@ $ips = $data['ips'] ?? [];
           <p><strong class="danger-bg"><?= $ban['communityBanned'] ? 'Community ban' : '' ?></strong></p>
         <?php endif; ?>
       </div>
-    </div>
 
+      <?php if ($fungunPlayer): ?>
+      <div class="player-info-right">
+        <h3>Fungun ECD</h3>
+        <?php if ($fungunPlayer['lastDanger']): ?>
+          <p> 
+            <strong class="status-danger">Обнаружены читы</strong> - </a>
+            Report Id <?= htmlspecialchars($fungunPlayer['lastDanger']['report_id']) ?>
+          </p>
+        <?php elseif ($fungunPlayer['lastWarning']): ?>
+          <p> 
+            <strong class="status-warning">Подозрительно</strong> - </a>
+            Report Id <?= htmlspecialchars($fungunPlayer['lastWarning']['report_id']) ?>
+          </p>
+        <?php elseif ($fungunPlayer['lastSuccess']): ?>
+          <p> 
+            <strong class="status-success">Чисто</strong> - </a>
+            Report Id <?= htmlspecialchars($fungunPlayer['lastSuccess']['report_id']) ?>
+          </p>
+        <?php else: ?>
+          <p>Нет данных по Fungun</p>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+    </div>
+    
     <div class="player-history-container">
       <?php if (count($names)): ?>
         <div class="player-names-section">

@@ -17,7 +17,13 @@
           </a>
         </div>
         <h3>Steam ID</h3>
-        <p>{{ playerResponse.steamId }}</p>
+        <p>
+          {{ playerResponse.steamId }}
+          <img *ngIf="playerResponse.countryCode"
+                  [src]="'https://flagcdn.com/24x18/' + playerResponse.countryCode.toLowerCase() + '.png'"
+                  [alt]="playerResponse.countryCode + ' flag'" width="24" height="18"
+                  style="margin-right: 6px;" />
+        </p>
         <div *ngIf="playerResponse?.fullSteamPlayerInfo?.gameInfo as gameInfo">
           <h3>Counter Strike</h3>
           <p>{{ gameInfo.playtime_forever / 60 | number:'1.0-0'}} ч. всего</p>
@@ -38,14 +44,42 @@
         </div>
       </div>
 
-      <!-- <div class="player-info-right">
+      <div class="player-info-right">
         <h3>
           Fungun ECD
           <img class="fungun-icon svg-icon t4" src="assets/imgs/favicon2.ico" alt="favicon2.ico"/>
         </h3>
-        <p><strong>Количество проверок:</strong> N</p>
-        <p><strong>Последняя проверка:</strong> URL</p>
-      </div> -->
+        Последние проверки:
+        <p *ngIf="playerResponse?.fungunPlayer?.lastDanger">
+          <a class="status-danger"
+            [href]="'https://fungun.net/ecd/report/' + playerResponse.fungunPlayer?.lastDanger?.report_id + '/'" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            <strong>Обнаружены читы</strong>
+          </a>
+        </p>
+
+        <p *ngIf="playerResponse?.fungunPlayer?.lastWarning">
+          <a class="status-warning"
+            [href]="'https://fungun.net/ecd/report/' + playerResponse.fungunPlayer?.lastWarning?.report_id + '/'" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+          <strong>Подозрительно</strong>
+          </a>
+        </p>
+
+        <p *ngIf="playerResponse?.fungunPlayer?.lastSuccess">
+          <a class="status-success"
+            [href]="'https://fungun.net/ecd/report/' + playerResponse.fungunPlayer?.lastWarning?.report_id + '/'" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+          <strong>Чисто</strong>
+          </a>
+        </p>
+      </div>
     </div>
 
     <div class="player-history-container">
