@@ -48,6 +48,7 @@ export interface FungunPlayer {
   lastSuccess: FungunPlayerResult | null;
   lastWarning: FungunPlayerResult | null;
   lastDanger: FungunPlayerResult | null;
+  lastReport: FungunPlayerResult | null;
 }
 
 export interface FungunPlayerResult {
