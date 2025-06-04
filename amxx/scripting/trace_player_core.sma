@@ -119,8 +119,12 @@ public MenuNamesHandler(id, menu, item)
 
 public RequestPlayerInfo(requesterId, targetSteamId[], targetId)
 {
-  new url[256]; new name[32]; 
+  new url[256]; new name[32]; new motd[MAX_MOTD_LENGTH];
   formatex(url, charsmax(url), "%s/player.php?steamId=%s", Server, targetSteamId);
+  formatex(motd, sizeof(motd) - 1,\
+    "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=%s^"></head><body><p><center>LOADING...</center></p></body></html>",\
+  url);
+
   get_user_name(targetId, name, charsmax(name));
-  show_motd(requesterId, url, name)
+  show_motd(requesterId, motd, name);
 }

@@ -61,7 +61,7 @@
           <?= htmlspecialchars($steamId) ?>
           <?php if ($data['countryCode']): ?>
           <img 
-              src="http://www.geognos.com/api/en/countries/flag/<?php echo ($data['countryCode']); ?>.png"
+              src="https://flagcdn.com/24x18/<?php echo strtolower($data['countryCode']); ?>.png"
               alt="<?php echo htmlspecialchars($data['countryCode']); ?> flag"
               width="24"
               height="18"
