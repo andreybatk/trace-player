@@ -44,7 +44,8 @@ namespace TracePlayer.BL.Services.Fungun
                     var lastSuccess = results.LastOrDefault(r => r.ResultStatus == "success");
                     var lastWarning = results.LastOrDefault(r => r.ResultStatus == "warning");
                     var lastDanger = results.LastOrDefault(r => r.ResultStatus == "danger");
-                    var fungunPlayer = new FungunPlayer { LastSuccess = lastSuccess, LastWarning = lastWarning, LastDanger = lastDanger };
+                    var lastReport = results.LastOrDefault();
+                    var fungunPlayer = new FungunPlayer { LastSuccess = lastSuccess, LastWarning = lastWarning, LastDanger = lastDanger, LastReport = lastReport };
 
                     _cache.Set(steamId, fungunPlayer, TimeSpan.FromMinutes(5));
 

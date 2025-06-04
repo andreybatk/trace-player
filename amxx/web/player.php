@@ -88,6 +88,7 @@
       <?php if ($fungunPlayer): ?>
       <div class="player-info-right">
         <h3>Fungun ECD</h3>
+        <h4>Bad Report</h4>
         <?php if ($fungunPlayer['lastDanger']): ?>
           <p> 
             <strong class="status-danger">Обнаружены читы</strong> - </a>
@@ -105,6 +106,14 @@
           </p>
         <?php else: ?>
           <p>Нет данных по Fungun</p>
+        <?php endif; ?>
+
+        <?php if ($fungunPlayer['lastReport']): ?>
+          <h4>Last Report</h4>
+          <p> 
+            <strong><?= htmlspecialchars($fungunPlayer['lastReport']['result_status']) ?></strong> - </a>
+            Report Id <?= htmlspecialchars($fungunPlayer['lastReport']['report_id']) ?>
+          </p>
         <?php endif; ?>
       </div>
     <?php endif; ?>
