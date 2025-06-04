@@ -110,9 +110,32 @@
 
         <?php if ($fungunPlayer['lastReport']): ?>
           <h4>Last Report</h4>
-          <p> 
-            <strong><?= htmlspecialchars($fungunPlayer['lastReport']['result_status']) ?></strong> - </a>
-            Report Id <?= htmlspecialchars($fungunPlayer['lastReport']['report_id']) ?>
+          <?php
+            $statusKey = $fungunPlayer['lastReport']['result_status'];
+            $status = htmlspecialchars($statusKey);
+
+            switch ($statusKey) {
+                case 'success':
+                    $statusClass = 'status-success';
+                    $statusText = 'Чисто';
+                    break;
+                case 'warning':
+                    $statusClass = 'status-warning';
+                    $statusText = 'Подозрительно';
+                    break;
+                case 'danger':
+                    $statusClass = 'status-danger';
+                    $statusText = 'Обнаружены читы';
+                    break;
+                default:
+                    $statusClass = 'status-success';
+                    $statusText = 'Unknown Status';
+                    break;
+            }
+          ?>
+          <p>
+              <strong class="<?= $statusClass ?>"><?= $statusText ?></strong> -
+              Report Id <?= htmlspecialchars($fungunPlayer['lastReport']['report_id']) ?>
           </p>
         <?php endif; ?>
       </div>
