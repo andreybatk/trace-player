@@ -8,10 +8,11 @@ namespace TracePlayer.Contracts.Fungun
         public int ReportId { get; set; }
 
         [JsonPropertyName("steamid_game")]
-        public string SteamIdGame { get; set; } = string.Empty;
+        public long SteamIdGame { get; set; }
 
         [JsonPropertyName("result_status")]
         public string ResultStatus { get; set; } = string.Empty;
+        [JsonPropertyName("uuid")]
         public int Uuid { get; set; }
     }
 }

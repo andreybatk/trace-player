@@ -30,35 +30,28 @@ namespace TracePlayer.BL.Services.Fungun
 
             try
             {
-                //TEST
-                var fungunPlayer = new FungunPlayer { LastSuccess = new FungunPlayerResult { ReportId = 15963, ResultStatus = "success" }, LastWarning = new FungunPlayerResult { ReportId = 15963, ResultStatus = "warning" }, LastDanger = new FungunPlayerResult { ReportId = 15963, ResultStatus = "danger" } };
+                if (fungunApiKeyMd5 is null)
+                {
+                    fungunApiKeyMd5 = _apiKeyMd5;
+                }
 
-                _cache.Set(steamId, fungunPlayer, TimeSpan.FromMinutes(5));
+                var url = $"http://fungun.net/ska/eye.php?method=get&key={fungunApiKeyMd5}&steamids[]={steamId}";
 
-                return fungunPlayer;
+                var fungunResponse = await _httpClient.GetFromJsonAsync<FungunApiResponse>(url, cancellationToken);
 
-                //if(fungunApiKeyMd5 is null)
-                //{
-                //    fungunApiKeyMd5 = _apiKeyMd5;
-                //}
+                if (fungunResponse?.Success == true && fungunResponse.Data.TryGetValue(steamId, out var results))
+                {
+                    var lastSuccess = results.LastOrDefault(r => r.ResultStatus == "success");
+                    var lastWarning = results.LastOrDefault(r => r.ResultStatus == "warning");
+                    var lastDanger = results.LastOrDefault(r => r.ResultStatus == "danger");
+                    var fungunPlayer = new FungunPlayer { LastSuccess = lastSuccess, LastWarning = lastWarning, LastDanger = lastDanger };
 
-                //var url = $"http://fungun.net/ska/eye.php?method=get&key={fungunApiKeyMd5}&steamids[]={Uri.EscapeDataString(steamId)}";
+                    _cache.Set(steamId, fungunPlayer, TimeSpan.FromMinutes(5));
 
-                //var fungunResponse = await _httpClient.GetFromJsonAsync<FungunApiResponse>(url, cancellationToken);
+                    return fungunPlayer;
+                }
 
-                //if (fungunResponse?.Success == true && fungunResponse.Data.TryGetValue(steamId, out var results))
-                //{
-                //    var lastSuccess = results.LastOrDefault(r => r.ResultStatus == "success");
-                //    var lastWarning = results.LastOrDefault(r => r.ResultStatus == "warning");
-                //    var lastDanger = results.LastOrDefault(r => r.ResultStatus == "danger");
-                //    var fungunPlayer = new FungunPlayer { LastSuccess = lastSuccess, LastWarning = lastWarning, LastDanger = lastDanger };
-
-                //    _cache.Set(steamId, fungunPlayer, TimeSpan.FromMinutes(5));
-
-                //    return fungunPlayer;
-                //}
-
-                //return null;
+                return null;
             }
             catch (OperationCanceledException)
             {
