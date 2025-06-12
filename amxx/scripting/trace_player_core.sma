@@ -6,10 +6,10 @@
 #include <amxmisc>
 
 #define PLUGIN "Trace Player Core"
-#define VERSION "1.4"
+#define VERSION "1.4.1"
 #define AUTHOR "yarmak"
 
-new const Server[] = "http://localhost:8000";
+new const PlayerLink[] = "http://localhost:8000/player.php";
 
 public plugin_init()
 {
@@ -119,8 +119,12 @@ public MenuNamesHandler(id, menu, item)
 
 public RequestPlayerInfo(requesterId, targetSteamId[], targetId)
 {
-  new url[256]; new name[32]; 
-  formatex(url, charsmax(url), "%s/player.php?steamId=%s", Server, targetSteamId);
+  new url[256]; new name[32]; new motd[MAX_MOTD_LENGTH];
+  formatex(url, charsmax(url), "%s?steamId=%s", PlayerLink, targetSteamId);
+  formatex(motd, sizeof(motd) - 1,\
+    "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=%s^"></head><body><p><center>LOADING...</center></p></body></html>",\
+  url);
+
   get_user_name(targetId, name, charsmax(name));
-  show_motd(requesterId, url, name)
+  show_motd(requesterId, motd, name);
 }
