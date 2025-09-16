@@ -1,4 +1,5 @@
-﻿using TracePlayer.BL.Helpers;
+﻿using Microsoft.Extensions.Configuration;
+using TracePlayer.BL.Helpers;
 using TracePlayer.BL.Services.Fungun;
 using TracePlayer.BL.Services.Geo;
 using TracePlayer.BL.Services.Steam;
@@ -17,14 +18,16 @@ namespace TracePlayer.BL.Services.Player
         private readonly SteamApiService _steamApiService;
         private readonly FungunApiService _fungunApiService;
         private readonly GeoService _geoService;
+        private readonly string _apiKeyMd5;
 
-        public PlayerService(IPlayerRepository playerRepository, IUserRepository userRepository, SteamApiService steamApiService, FungunApiService fungunApiService, GeoService geoService)
+        public PlayerService(IPlayerRepository playerRepository, IUserRepository userRepository, SteamApiService steamApiService, FungunApiService fungunApiService, GeoService geoService, IConfiguration configuration)
         {
             _playerRepository = playerRepository;
             _userRepository = userRepository;
             _steamApiService = steamApiService;
             _fungunApiService = fungunApiService;
             _geoService = geoService;
+            _apiKeyMd5 = configuration["Fungun:ApiKeyMd5"] ?? throw new InvalidOperationException("Fungun API key is missing in configuration.");
         }
 
         public async Task AddNames(AddPlayersNamesRequest request)
@@ -84,6 +87,11 @@ namespace TracePlayer.BL.Services.Player
             if (!string.IsNullOrEmpty(player.SteamId64))
             {
                 fullSteamPlayerInfo = await _steamApiService.GetFullSteamPlayerInfoAsync(player.SteamId64, steamApiKey, cancellationToken);
+            }
+
+            if (fungunApiKey == "TRACEPLAYER_FG_KEY")
+            {
+                fungunApiKey = _apiKeyMd5;
             }
 
             FungunPlayer? fungunPlayer = null;
