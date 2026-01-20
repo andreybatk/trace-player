@@ -70,7 +70,7 @@ public client_putinserver(id)
   }
 
   if (get_pcvar_num(CvarIsDebug) == 1)
-    log_amx("[TracePlayer] Данные игрока записаны в vault_new %s", steamId);
+    log_amx("[TracePlayer] Player data is recorded in vault_new %s", steamId);
 
   nvault_set(vault_new, key, szData);
 }
@@ -105,10 +105,13 @@ public UploadPlayers()
 
   new serverName[64];
   get_cvar_string("hostname", serverName, charsmax(serverName));
-  if(ezjson_object_set_string(jsonData, "server", serverName))
+
+  if (get_pcvar_num(CvarIsDebug) == 1)
   {
-    if (get_pcvar_num(CvarIsDebug) == 1)
-      log_amx("[TracePlayer DEBUG] Server successfully written to jsonData: %s", serverName);
+    if(ezjson_object_set_string(jsonData, "server", serverName))
+      log_amx("[TracePlayer DEBUG] ServerName successfully written to jsonData: %s", serverName);
+    else
+      log_amx("[TracePlayer DEBUG] ERROR! ServerName failed written to jsonData: %s", serverName);
   }
 
   new iPos = 0, key[128], steamId[32];
@@ -131,7 +134,7 @@ public UploadPlayers()
     if (parse(key, ip, charsmax(ip), name, charsmax(name)) < 2)
     {
       if (get_pcvar_num(CvarIsDebug) == 1)
-        log_amx("[TracePlayer DEBUG] Failed to parse data: %s", key);
+        log_amx("[TracePlayer DEBUG] ERROR! Failed to parse data: %s", key);
 
       continue;
     }
@@ -139,7 +142,7 @@ public UploadPlayers()
     if (strlen(steamId) == 0 || strlen(ip) == 0 || strlen(name) == 0)
     {
       if (get_pcvar_num(CvarIsDebug) == 1)
-        log_amx("[TracePlayer DEBUG] Incorrect data after parsing: '%s'", key);
+        log_amx("[TracePlayer DEBUG] ERROR! Incorrect data after parsing: '%s'", key);
 
       continue;
     }
@@ -150,7 +153,7 @@ public UploadPlayers()
     new EzJSON:jsonPlayer = ezjson_init_object();
     if (jsonPlayer == EzInvalid_JSON)
     {
-      log_amx("[TracePlayer] Failed to create JSON object for player: %s", steamId);
+      log_amx("[TracePlayer] ERROR! Failed to create JSON object for player: %s", steamId);
       continue;
     }
 

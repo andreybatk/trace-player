@@ -61,7 +61,7 @@
           <?= htmlspecialchars($steamId) ?>
           <?php if ($data['countryCode']): ?>
           <img 
-              src="http://www.geognos.com/api/en/countries/flag/<?php echo ($data['countryCode']); ?>.png"
+              src="https://flagcdn.com/24x18/<?php echo strtolower($data['countryCode']); ?>.png"
               alt="<?php echo htmlspecialchars($data['countryCode']); ?> flag"
               width="24"
               height="18"
@@ -88,6 +88,7 @@
       <?php if ($fungunPlayer): ?>
       <div class="player-info-right">
         <h3>Fungun ECD</h3>
+        <h4>Bad Report</h4>
         <?php if ($fungunPlayer['lastDanger']): ?>
           <p> 
             <strong class="status-danger">Обнаружены читы</strong> - </a>
@@ -105,6 +106,37 @@
           </p>
         <?php else: ?>
           <p>Нет данных по Fungun</p>
+        <?php endif; ?>
+
+        <?php if ($fungunPlayer['lastReport']): ?>
+          <h4>Last Report</h4>
+          <?php
+            $statusKey = $fungunPlayer['lastReport']['result_status'];
+            $status = htmlspecialchars($statusKey);
+
+            switch ($statusKey) {
+                case 'success':
+                    $statusClass = 'status-success';
+                    $statusText = 'Чисто';
+                    break;
+                case 'warning':
+                    $statusClass = 'status-warning';
+                    $statusText = 'Подозрительно';
+                    break;
+                case 'danger':
+                    $statusClass = 'status-danger';
+                    $statusText = 'Обнаружены читы';
+                    break;
+                default:
+                    $statusClass = 'status-success';
+                    $statusText = 'Unknown Status';
+                    break;
+            }
+          ?>
+          <p>
+              <strong class="<?= $statusClass ?>"><?= $statusText ?></strong> -
+              Report Id <?= htmlspecialchars($fungunPlayer['lastReport']['report_id']) ?>
+          </p>
         <?php endif; ?>
       </div>
     <?php endif; ?>
