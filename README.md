@@ -1,4 +1,4 @@
 # Trace Player
 - .NET 8
-- PosgreeSQL
+- PostgreSQL
 - Angular 19
